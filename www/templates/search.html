@@ -1,0 +1,33 @@
+<ion-view title="Search">
+    <ion-nav-buttons side="left">
+        <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+
+    <ion-content overflow-scroll="true" padding="true" class="has-header">
+
+        <form class="list">
+            <label class="item item-input">
+                <span class="input-label">From:</span>
+                <input type="text" g-places-autocomplete force-selection="true" options="{
+                        types: ['(cities)']
+                    }" placeholder="" ng-model="data.from">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">To:</span>
+                <input type="text" g-places-autocomplete force-selection="true" options="{
+                        types: ['(cities)']
+                    }" placeholder="" ng-model = "data.to">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Month:</span>
+                <input type="text" placeholder="" ng-model = "data.month">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Day:</span>
+                <input type="text" placeholder="" ng-model = "data.day">
+            </label>
+            <div class="button-bar"></div>
+            <a href="#/page4" class="button  button-block " ng-click = "search(data)">Search</a>
+        </form>
+    </ion-content>
+</ion-view>

@@ -1,0 +1,41 @@
+<!-- <ion-view view-title="Login" name="login-view">
+  <ion-content class="padding">
+      <div class="list list-inset">
+          <label class="item item-input">
+              <input type="text" placeholder="Username" ng-model="data.username">
+          </label>
+          <label class="item item-input">
+              <input type="password" placeholder="Password" ng-model="data.password">
+          </label>
+      </div>
+      <button class="button button-block button-calm" ng-click="login(data)">Login</button>
+      <button class="button button-block" ng-click="openPopover($event)"> Register </button>
+  </ion-content>
+</ion-view>
+ -->
+
+<ion-view view-title="Login" name="login-view">
+    <ion-content overflow-scroll="true" padding="true" class="has-header">
+        <form class="list">
+            <h1>HitchHiking</h1>
+            <div>
+                <p>Welcome to my
+                    <strong>HitchHiking App</strong>
+                </p>
+            </div>
+            <div class="spacer" style="width: 283px; height: 53px;"></div>
+            <ion-list>
+                <label class="item item-input">
+                    <input type="email" placeholder="Email" ng-model="data.email">
+                </label>
+                <label class="item item-input">
+                    <input type="password" placeholder="Passsword" ng-model="data.password">
+                </label>
+            </ion-list>
+            <div class="spacer" style="height: 40px;"></div>
+            <button class="button button-stable button-block " ng-click="login(data)">Log in</button>
+            <button class="button button-positive button-block button-small" ng-click="fbLogin()">Login with Facebook</button>
+            <button class="button button-positive button-clear button-block " ng-click="register()">Or create an account</button>
+        </form>
+    </ion-content>
+</ion-view>

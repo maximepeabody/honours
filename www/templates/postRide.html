@@ -1,0 +1,57 @@
+<ion-view title="Post Ride">
+    <ion-nav-buttons side="left">
+        <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    </ion-nav-buttons>
+    <ion-content overflow-scroll="true" padding="true" class="has-header">
+        <form class="list">
+            <label class="item item-input">
+                <span class="input-label">From:</span>
+                 <input type="text" g-places-autocomplete force-selection="true" options="{
+                        types: ['(cities)']
+                    }" placeholder="ex: Montreal" ng-model="data.from"> 
+            </label>
+            <label class="item item-input">
+                <span class="input-label">To:</span>
+                <input type="text" g-places-autocomplete  force-selection="true" options="{
+                        types: ['(cities)']
+                    }"placeholder="ex: Toronto" ng-model="data.to">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Month:</span>
+                <input type="text" placeholder="" ng-model="data.month">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Day:</span>
+                <input type="text" placeholder="" ng-model="data.day">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Time:</span>
+                <input type="time" placeholder="" ng-model="data.time">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Pickup Location:</span>
+                <input type="text" placeholder="" g-places-autocomplete force-selection="true" ng-model="data.pickupLocation">
+            </label>
+            <label class="item item-input">
+                <span class="input-label">Additional Info :</span>
+                <input type="text" placeholder="" ng-model="data.info">
+            </label>
+            <label class="item item-input item-select">
+                <span class="input-label">Avaialble Seats:</span>
+                <select>
+                    <option> 1 </option>
+                    <option> 2 </option>
+                    <option selected> 3 </option>
+                    <option> 4 </option>
+                    <option> 5 </option>
+                    <option> 6 </option>
+                    <option> 7 </option>
+
+                </select>
+            </label>
+
+            <div class="button-bar"></div>
+            <button class="button  button-block " ng-click="postRide(data)">Post Ride</button>
+        </form>
+    </ion-content>
+</ion-view>
