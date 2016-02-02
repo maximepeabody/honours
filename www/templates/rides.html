@@ -1,12 +1,11 @@
-<ion-view title="Rides" name="rides-view">
+<ion-view title="Rides" >
     <ion-nav-buttons side="left">
         <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
     </ion-nav-buttons>
     <ion-content overflow-scroll="true" padding="true" class="has-header">
         <ion-list>
-            <ion-item class="item-divider">Upcoming Rides</ion-item>
-            <ion-item href="#/page9">Item 1</ion-item>
-            <ion-item>Item 2</ion-item>
+            <ion-item class="item-divider" >Upcoming Rides</ion-item>
+            <ion-item ng-repeat="ride in rides">{{ride.from}}</ion-item>
             <ion-item class="item-divider">Past Rides</ion-item>
             <ion-item>Item 3</ion-item>
         </ion-list>

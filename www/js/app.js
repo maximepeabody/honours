@@ -47,7 +47,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     .state('menu', {
         url: '/menu',
         abstract: true,
-        templateUrl: 'templates/menu.html'
+        templateUrl: 'templates/menu.html',
+        controller: 'MenuCtrl'
     })
 
     .state('menu.chat', {
@@ -85,7 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         views: {
             'menuContent': {
                 templateUrl: 'templates/rides.html',
-                controller: 'RidesCtrl'
+                controller: 'MyridesCtrl'
             }
         }
 

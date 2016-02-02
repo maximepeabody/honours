@@ -8,7 +8,7 @@
                 <span class="input-label">From:</span>
                  <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
-                    }" placeholder="ex: Montreal" ng-model="data.from"> 
+                    }" placeholder="ex: Montreal" ng-model="data.from">
             </label>
             <label class="item item-input">
                 <span class="input-label">To:</span>
@@ -17,12 +17,8 @@
                     }"placeholder="ex: Toronto" ng-model="data.to">
             </label>
             <label class="item item-input">
-                <span class="input-label">Month:</span>
-                <input type="text" placeholder="" ng-model="data.month">
-            </label>
-            <label class="item item-input">
-                <span class="input-label">Day:</span>
-                <input type="text" placeholder="" ng-model="data.day">
+                <span class="input-label">Date:</span>
+                <input type="date" placeholder="" ng-model="data.date">
             </label>
             <label class="item item-input">
                 <span class="input-label">Time:</span>
@@ -49,7 +45,6 @@
 
                 </select>
             </label>
-
             <div class="button-bar"></div>
             <button class="button  button-block " ng-click="postRide(data)">Post Ride</button>
         </form>
