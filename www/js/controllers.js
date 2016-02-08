@@ -11,21 +11,58 @@ angular.module('starter.controllers', [])
     $scope.rides = myRidesRef;
   });
   //quick test to see if dbs security rules work:
-  usersRef = $firebaseObject(new Firebase("https://hiked.firebaseio.com/users/facebook:02930329"));
+/*  usersRef = $firebaseObject(new Firebase("https://hiked.firebaseio.com/users/facebook:02930329"));
   usersRef.$loaded().then(function() {
     console.log(usersRef);
   //  var usr = usersRef.$value;
   //  usr.newVal = "tret";
     usersRef.newVal = "test";
     usersRef.$save();
-
   });
-
+*/
 
 })
 
-.controller('SearchCtrl', function($scope, Auth, $firebaseObject, $firebaseArray){
+.controller('SearchCtrl', function($scope, Auth, $firebaseArray, RidesDbs){
+  $scope.authData = Auth.$getAuth();
+  var userRidesRef = $firebaseArray(new Firebase("http://hiked.firebaseio.com/users/" + $scope.authData.uid + "/hostedRides/"));
+  //RidesDbs.query().then();
 
+
+  $scope.search = function(input) {
+    if(validate(input)) {
+      var query = {};
+      query.fromCoord = {"lat": input.from.geometry.location.lat(), "long": input.from.geometry.location.lng()};
+      query.toCoord =  {"lat": input.to.geometry.location.lat(), "long": input.to.geometry.location.lng()}
+      query.day = input.date.getDay();
+      query.month = input.date.getMonth();
+      query.year = input.date.getYear();
+      queryJson = {'fromCoord.long': {$lt: query.fromCoord.long + 0.1},
+                   'fromCoord.long': {$gt: query.fromCoord.long - 0.1},
+                   'fromCoord.lat': {$lt: query.fromCoord.lat + 0.1},
+                   'fromCoord.lat': {$gt: query.fromCoord.lat - 0.1},
+                   'toCoord.long': {$lt: query.toCoord.long + 0.1},
+                   'toCoord.long': {$gt: query.toCoord.long - 0.1},
+                   'toCoord.lat': {$lt: query.toCoord.lat + 0.1},
+                   'toCoord.lat': {$gt: query.toCoord.lat - 0.1},
+                   day: query.day,
+                   month: query.month,
+                   year: query.year};
+      RidesDbs.query(queryJson).then(function(results){
+        console.log(results);
+        console.log('queried');
+      });
+    }
+    else{
+      console.log("error");
+    }
+  };
+
+  validate = function(input) {
+    if(input == null)
+      return false;
+    return (input.from != null && input.to != null && input.date != null);
+  }
 })
 
 .controller('MenuCtrl', function($scope, Auth, $state) {
@@ -36,10 +73,107 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('PostRideCtrl', function ($scope, $firebaseArray) {
+// controller to post the ride data to server //
+// ride data has form:
+// from: city
+// to  : city
+// from: latitude, longitude
+// to  : latitude, longitude
+// date: day//month/year
+// time
+// number of passengers
+// approximate cost:
+.controller('PostRideCtrl', function ($scope, RidesDbs, Auth, $firebaseArray) {
+  // times for the time dropdown option //
+  $scope.times = ['00:00',
+  '00:30',
+  '01:00',
+  '01:30',
+  '02:00',
+  '02:30',
+  '03:00',
+  '03:30',
+  '04:00',
+  '04:30',
+  '05:00',
+  '05:30',
+  '06:00',
+  '06:30',
+  '07:00',
+  '07:30',
+  '08:00',
+  '08:30',
+  '09:00',
+  '09:30',
+  '10:00',
+  '10:30',
+  '11:00',
+  '11:30',
+  '12:00',
+  '12:30',
+  '13:00',
+  '13:30',
+  '14:00',
+  '14:30',
+  '15:00',
+  '15:30',
+  '16:00',
+  '16:30',
+  '17:00',
+  '17:30',
+  '18:00',
+  '18:30',
+  '19:00',
+  '19:30',
+  '20:00',
+  '20:30',
+  '21:00',
+  '21:30',
+  '22:00',
+  '22:30',
+  '23:00',
+  '23:30'];
+
+
+  // get reference to user in dbs //
+  $scope.authData = Auth.$getAuth();
+  var userRidesRef = $firebaseArray(new Firebase("http://hiked.firebaseio.com/users/" + $scope.authData.uid + "/hostedRides/"));
+
+  // function that takes input and creates a ride on server //
   $scope.postRide = function(data) {
-  console.log(data);
-  console.log(data.from.geometry.location.lat());
+    console.log(data);
+    var Ride = new RidesDbs();
+    if(validate(data)) {
+      saveToDbs(data, Ride);
+    }
+    else {
+      console.log("error");
+    }
+  };
+
+  // function which validates the input //
+  validate = function(data) {
+    return(data.from != null && data.to != null && data.date != null );
+  };
+
+  //function that takes input data and formats it for database //
+  saveToDbs = function(data, dbs) {
+    dbs.from = data.from.name;
+    dbs.to = data.to.name;
+    dbs.fromCoord = {"lat": data.from.geometry.location.lat(), "long": data.from.geometry.location.lng()};
+    dbs.toCoord =  {"lat": data.to.geometry.location.lat(), "long": data.to.geometry.location.lng()}
+    dbs.date = data.date;
+    dbs.day = data.date.getDay();
+    dbs.month = data.date.getMonth();
+    dbs.year = data.date.getYear();
+    dbs.time = data.time;
+    dbs.spots = data.spots;
+    dbs.driverid = $scope.authData.uid;
+    dbs.$save().then(function(m){
+      rideId = m._id.$oid;
+      userRidesRef.$add(rideId);
+      console.log(m);
+    });
   };
 })
 
@@ -95,76 +229,10 @@ angular.module('starter.controllers', [])
                 })
 
         };
+})
+.controller('RidesCtrl', function ($scope, $firebaseArray) {
 
-
-
-        //for registering with email//
-        /*
-            // .fromTemplateUrl() method
-            $ionicPopover.fromTemplateUrl('templates/register.html', {
-                scope: $scope
-            }).then(function(popover) {
-                $scope.popover = popover;
-            });
-
-
-
-            $scope.openPopover = function($event) {
-                console.log("test");
-                $scope.popover.show($event);
-            };
-            $scope.closePopover = function() {
-                $scope.popover.hide();
-            };
-            */
-
-    })
-    .controller('RidesCtrl', function ($scope, $firebaseArray) {
-
-    })
-    .controller('SearchCtrl', function ($scope, $firebaseArray) {
-        // With the new view caching in Ionic, Controllers are only called
-        // when they are recreated or on app start, instead of every page change.
-        // To listen for when this page is active (for example, to refresh data),
-        // listen for the $ionicView.enter event:
-        //
-        //$scope.$on('$ionicView.enter', function(e) {
-        //});
-
-        //first, search for rides //
-        //from A to B, A to anywhere, and on a certain date //
-        $scope.searched = false;
-        var ridesRef = new Firebase("http://hiked.firebaseio.com/rides");
-
-        $scope.search = function (query) {
-            $scope.filteredRides = $firebaseArray(ridesRef.orderByChild("from").equalTo(query.from));
-            $scope.searched = true;
-            console.log("searched");
-        }
-
-        $scope.returnToSearch = function () {
-            // $scope.filteredRides = {};
-            $scope.searched = false;
-        }
-
-
-        // this creates an array which is binded to the database
-        // $scope.rides = $firebaseArray(ridesRef);
-
-
-        $scope.addRide = function (to, from, driver, date, time, pickup) {
-            console.log("date:" + date);
-            $scope.rides.$add({
-                to: to,
-                from: from,
-                driver: driver,
-                date: date,
-                time: time,
-                pickup: pickup
-            });
-        };
-
-    })
+})
 
 .controller('ChatDetailCtrl', function ($scope, $stateParams, Chats) {
     $scope.chat = Chats.get($stateParams.chatId);

@@ -20,9 +20,11 @@
                 <span class="input-label">Date:</span>
                 <input type="date" placeholder="" ng-model="data.date">
             </label>
-            <label class="item item-input">
+            <label class="item item-input item-select">
                 <span class="input-label">Time:</span>
-                <input type="time" placeholder="" ng-model="data.time">
+                <select ng-model="data.time">
+                  <option ng-repeat="time in times "> {{time}} </option>
+                </select>
             </label>
             <label class="item item-input">
                 <span class="input-label">Pickup Location:</span>
@@ -33,8 +35,8 @@
                 <input type="text" placeholder="" ng-model="data.info">
             </label>
             <label class="item item-input item-select">
-                <span class="input-label">Avaialble Seats:</span>
-                <select>
+                <span class="input-label" >Avaialble Seats:</span>
+                <select ng-model="data.spots">
                     <option> 1 </option>
                     <option> 2 </option>
                     <option selected> 3 </option>

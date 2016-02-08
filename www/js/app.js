@@ -5,9 +5,25 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', "firebase"])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'firebase', 'ngRoute','mongolabResourceHttp'])
 
-.run(function ($ionicPlatform) {
+.constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
+
+.run(function ($ionicPlatform, Auth, $rootScope, $state) {
+    //stateChange event
+    $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams){
+      console.log("stateChange");
+      console.log(Auth.$getAuth());
+      console.log(toState);
+      console.log(toState.AuthRequired);
+
+    if (toState.AuthRequired && !Auth.$getAuth()){ //Assuming the AuthService holds authentication logic
+      // User isn’t authenticated
+      console.log("block");
+      $state.transitionTo("login");
+    //  event.preventDefault();
+    }
+    });
     $ionicPlatform.ready(function () {
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
@@ -48,23 +64,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         url: '/menu',
         abstract: true,
         templateUrl: 'templates/menu.html',
-        controller: 'MenuCtrl'
+        controller: 'MenuCtrl',
+
     })
 
     .state('menu.chat', {
             url: '/chat',
             templateUrl: 'templates/chat.html',
-            controller: 'ChatCtrl'
-
+            controller: 'ChatCtrl',
+AuthRequired: true
 
 
         })
         .state('menu.account', {
             url: '/account',
+            AuthRequired: true,
             views: {
                 'menuContent': {
                     templateUrl: 'templates/account.html',
-                    controller: 'AccountCtrl'
+                    controller: 'AccountCtrl',
                 }
             }
 
@@ -72,6 +90,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         })
         .state('menu.postRide', {
             url: '/postRide',
+            AuthRequired: true,
             views: {
                 'menuContent': {
                     templateUrl: 'templates/postRide.html',
@@ -83,6 +102,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('menu.rides', {
         url: '/rides',
+        AuthRequired: true,
         views: {
             'menuContent': {
                 templateUrl: 'templates/rides.html',
@@ -94,6 +114,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     .state('menu.search', {
         url: '/search',
+        AuthRequired: true,
         views: {
             'menuContent': {
                 templateUrl: 'templates/search.html',

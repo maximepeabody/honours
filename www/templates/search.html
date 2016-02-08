@@ -19,15 +19,11 @@
                     }" placeholder="" ng-model = "data.to">
             </label>
             <label class="item item-input">
-                <span class="input-label">Month:</span>
-                <input type="text" placeholder="" ng-model = "data.month">
-            </label>
-            <label class="item item-input">
-                <span class="input-label">Day:</span>
-                <input type="text" placeholder="" ng-model = "data.day">
+                <span class="input-label">Date:</span>
+                <input type="date" placeholder="" ng-model = "data.date">
             </label>
             <div class="button-bar"></div>
-            <a href="#/page4" class="button  button-block " ng-click = "search(data)">Search</a>
+            <button class="button  button-block " ng-click = "search(data)">Search</button>
         </form>
     </ion-content>
 </ion-view>
