@@ -106,7 +106,7 @@ AuthRequired: true
         views: {
             'menuContent': {
                 templateUrl: 'templates/rides.html',
-                controller: 'MyridesCtrl'
+                controller: 'MyRidesCtrl'
             }
         }
 

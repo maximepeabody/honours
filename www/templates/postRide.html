@@ -50,5 +50,8 @@
             <div class="button-bar"></div>
             <button class="button  button-block " ng-click="postRide(data)">Post Ride</button>
         </form>
+        <div class="bar bar-footer bar-assertive" ng-show="error">
+          <div class="title" >{{errorMessage}}</div>
+        </div>
     </ion-content>
 </ion-view>
