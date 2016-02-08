@@ -231,9 +231,9 @@ angular.module('starter.controllers', [])
 //
 .controller('MyRidesCtrl', function ($scope, $firebaseArray, Auth, RidesDbs) {
   $scope.authData = Auth.$getAuth();
-  RidesDbs.query({'driverid': $scope.authData.uid}).then(function(results){
+  RidesDbs.query({ '$or':{'driverid': $scope.authData.uid}, {'passengers.'}).then(function(results){
     console.log(results);
-    $scope.rides =results;
+    $scope.rides = results;
   }, function(error){
     console.log(error);
   });
