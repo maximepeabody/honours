@@ -5,8 +5,9 @@
     <ion-content overflow-scroll="true" padding="true" class="has-header">
         <ion-list>
             <ion-item class="item-divider" >Upcoming Rides</ion-item>
-            <ion-item ng-repeat="ride in rides">{{ride.from}}</ion-item>
+            <ion-item ng-repeat="ride in rides | filter:upcoming">{{ride.from}} to {{ride.to}} on {{ride.date}}</ion-item>
             <ion-item class="item-divider">Past Rides</ion-item>
+            <ion-item ng-repeat="ride in rides | filter:past">{{ride.from}} to {{ride.to}} on {{ride.date}}</ion-item>
             <ion-item>Item 3</ion-item>
         </ion-list>
     </ion-content>
