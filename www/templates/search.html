@@ -28,5 +28,16 @@
         <div class="bar bar-footer bar-assertive" ng-show="error">
           <div class="title" >{{errorMessage}}</div>
         </div>
+
+        <ion-list>
+          <ion-item ng-repeat="ride in rides">
+            From {{ride.from}} to {{ride.to}} on {{ride.date}}, Driver: {{ride.driverid}}
+          </ion-item>
+          <ion-item ng-show="noRides" >
+            Sorry, there are no rides for this search...
+          </ion-item>
+
+        </ion-list>
+
     </ion-content>
 </ion-view>

@@ -10,7 +10,7 @@ angular.module('starter.controllers', [])
 //queries based on 'from' and 'to' coordinates, + 'date'.
 //can add option to query to anywhere, or a date range
 
-.controller('SearchCtrl', function($scope, Auth, $firebaseArray, RidesDbs, $ionicPopup){
+.controller('SearchCtrl', function($scope, Auth, $firebaseArray, RidesDbs, $ionicLoading){
   //get user data //
   $scope.authData = Auth.$getAuth();
   var userRidesRef = $firebaseArray(new Firebase("http://hiked.firebaseio.com/users/" + $scope.authData.uid + "/rides/"));
@@ -18,6 +18,8 @@ angular.module('starter.controllers', [])
   // error for input validation /./
   $scope.error = false;
   $scope.errorMessage = "";
+
+  $scope.noRides = false;
 
   //search function
   $scope.search = function(input) {
@@ -41,9 +43,19 @@ angular.module('starter.controllers', [])
      // to query a date range, do date: {$lt: query.datefrom + 1, $gt: query.dateto -1}
 
       // send a query to the dbs, once a response is given, create popup //
+      $ionicLoading.show({
+        template: 'Searching...'
+      });
       RidesDbs.query(queryJson).then(function(results){
         console.log(results);
-        $scope.showConfirm();
+        $ionicLoading.hide();
+        $scope.rides=results;
+        if($scope.rides.length == 0) {
+          $scope.noRides = true;
+        }
+        else{
+          $scope.noRides = false;
+        }
         console.log('queried');
       });
     }
@@ -60,23 +72,6 @@ angular.module('starter.controllers', [])
       return false;
     return (input.from != null && input.to != null && input.date != null);
   }
-
-  //popup code //
-  // A confirm dialog
- $scope.showConfirm = function() {
-   var confirmPopup = $ionicPopup.confirm({
-     title: 'Searching',
-     //template: 'Are you sure you want to eat this ice cream?'
-   });
-
-   confirmPopup.then(function(res) {
-     if(res) {
-    //   console.log('You are sure');
-     } else {
-      // console.log('You are not sure');
-     }
-   });
- };
 
 })
 
@@ -99,7 +94,7 @@ angular.module('starter.controllers', [])
 // time
 // number of passengers
 // approximate cost:
-.controller('PostRideCtrl', function ($scope, RidesDbs, Auth, $firebaseArray, $ionicPopup, UserDbs) {
+.controller('PostRideCtrl', function ($scope, RidesDbs, Auth, $firebaseArray, $ionicPopup, UserDbs, $ionicLoading) {
   //data variable for the input.
   $scope.data = {};
 
@@ -122,7 +117,12 @@ angular.module('starter.controllers', [])
     if(validate(data)) {
       $scope.error = false;
       var Ride = new RidesDbs();
+      //create loading screen //
+      $ionicLoading.show({
+        template: 'Loading...'
+      });
       saveToDbs(data, Ride);
+
     }
     else {
       console.log("error");
@@ -159,8 +159,10 @@ angular.module('starter.controllers', [])
     yymmdd = dd + mm*100 + yy*10000;
     dbs.date = yymmdd;
 
+
     // save to ride database //
     dbs.$save().then(function(m){
+      $ionicLoading.hide();
       $scope.showConfirm();
 
       // now save to user database
