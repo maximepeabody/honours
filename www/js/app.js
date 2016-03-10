@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'firebase', 'ngRoute','mongolabResourceHttp'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'firebase', 'ngRoute','mongolabResourceHttp', 'dbaq.google.directions'])
 
 .constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
 
@@ -111,6 +111,22 @@ AuthRequired: true
         }
 
     })
+/*  .state('menu.rideView', {
+      url: '/:rideid',
+      AuthRequired: true,
+      views: {
+        'menuContent':{
+          templateUrl: 'templates/rideView.html',
+          controller: 'RideViewCtrl',
+          resolve: {
+            ride: function($stateParams, UserDbs) {
+              console.log($stateParams.rideid);
+              return $stateParams.rideid;
+            }
+          }
+        }
+      }
+    })*/
 
     .state('menu.search', {
         url: '/search',
@@ -123,7 +139,23 @@ AuthRequired: true
         }
 
 
-    });
+    })
+    .state('menu.rideView', {
+          url: '/rideView/:rideid',
+          AuthRequired: true,
+          views: {
+            'menuContent':{
+              templateUrl: 'templates/rideView.html',
+              controller: 'RideViewCtrl',
+              resolve: {
+                ride: function($stateParams, UserDbs) {
+                  console.log($stateParams.rideid);
+                  return $stateParams.rideid;
+                }
+              }
+            }
+          }
+        });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/login');

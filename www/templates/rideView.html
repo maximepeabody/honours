@@ -1,0 +1,23 @@
+<ion-view title="RideView">
+  <ion-nav-buttons side="left">
+      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+    <ion-content overflow-scroll="true" padding="true" class="has-header">
+      <div class="list card">
+
+        <div class="item item-avatar">
+          <h2> <b>{{ride.from}}</b> to <b>{{ride.to}}</b></h2>
+          <p>On  {{ride.date}}</p>
+        </div>
+
+        <div class="item item-body">
+          <p>
+            {{ride.description}}
+          </p>
+          <button ng-click = "requestRide()"> Request Ride </button>
+
+        </div>
+
+      </div>
+    </ion-content>
+</ion-view>

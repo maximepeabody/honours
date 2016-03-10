@@ -10,13 +10,13 @@
                 <span class="input-label">From:</span>
                 <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
-                    }" placeholder="" ng-model="data.from">
+                    }" placeholder="" ng-model="data.origin">
             </label>
             <label class="item item-input">
                 <span class="input-label">To:</span>
                 <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
-                    }" placeholder="" ng-model = "data.to">
+                    }" placeholder="" ng-model = "data.destination">
             </label>
             <label class="item item-input">
                 <span class="input-label">Date:</span>
@@ -30,8 +30,8 @@
         </div>
 
         <ion-list>
-          <ion-item ng-repeat="ride in rides">
-            From {{ride.from}} to {{ride.to}} on {{ride.date}}, Driver: {{ride.driverid}}
+          <ion-item ng-repeat="ride in rides" ui-sref='menu.rideView({rideid: ride._id.$oid})'>
+            From {{ride.origin}} to {{ride.destination}} on {{ride.date}}, Driver: {{ride.driverid}}
           </ion-item>
           <ion-item ng-show="noRides" >
             Sorry, there are no rides for this search...
