@@ -27,7 +27,7 @@ module.export = function() {
         polyline: Number
       }]
     },
-    spots,
+    spots: Number,
     passengerIds: [String]
   });
 

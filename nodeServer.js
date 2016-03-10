@@ -2,6 +2,29 @@
 var http = require('http');
 var express = require('express');
 var bodyParser = require('body-parser');
+var polyline = require('polyline');
+var geolib = require('geolib');
+
+//test geolib //
+
+var point = {
+	lat: 41.84604,
+	lng: -87.63931
+};
+
+var lineStart = {
+	lat: 41.81662,
+	lng: -87.73441
+};
+
+var lineEnd = {
+	lat: 41.82097,
+	lng: -87.63897
+};
+console.log(geolib);
+console.log(geolib.getDistanceFromLine(point, lineStart, lineEnd));
+console.log(geolib.isPointNearLine(point, lineStart, lineEnd, 3000));
+
 var mongoose = require('mongoose');
 
 //connect to the running db //
@@ -104,25 +127,97 @@ app.post('/addPassengerToRide', function(req, res) {
 // -queryRides
 // -advancedQueryRides
 
-// gets ride based on ride id
+// gets ride based on ride id //
 app.get('/ride', function(req, res) {
-  console.log(req);
-  res.send({blah:2});
+  db.find(req.id).then(function(ride) {
+	  res.send(ride);
+  });
   //req.query //
 });
 
 // gets user based on user id //
 app.get('/user', function(req, res) {
-
+  db.find(req.id).then(function(user) {
+	  res.send(user);
+  });
 });
 
 // gets list of rides based on query //
+// query is of the form :
+// origin.lat:
+// oring.lng :
+// destination.lat:
+// destination.long:
+// date:
 app.get('/queryRides', function(req, res) {
-
+	var query = req.query;
+	db.find(query);
 });
 
 //gets list of rides based on ana advanced query //
+// advanced query includes bounds //
+// query is of the form :
+// origin.lat:
+// oring.lng :
+// destination.lat:
+// destination.long:
+// date:
+// boundNortheastLat :
+// boundnortheastlng:
+// boundsouthwestlat:
+// boundsouthwestlng:
 app.get('/advancedQueryRides', function(req, res) {
+	var bounds = {
+		northeast: {
+			lat: boundNortheastLat,
+			lng: boundNortheastLng
+		},
+		southwest: {
+			lat:boundsouthwestlat,
+			lng: boundsouthwestlng
+		}
+	};
+	var origin = {
+		lat: originlat,
+		lng: originlng
+	}
+	var destination = {
+		lat: destinationlat,
+		lng: destinationlng
+	};
+	var validRides = [];
+	// for each ride in the bounding box, see if the origin/destination lies on the path//
+	db.find(bounds).then(function(rides) {
+		
+		//accuracy of pointInLine search, in meters //
+		var accuracy = 3000;
+		
+		for(ride in rides) {
+			// bool value to see if origin/destination are on the path //
+			var originOnPath = false;
+			var destinationOnPath = false;
+			
+			// for each step, and for each point inside the step //
+			for(step in ride.steps) {
+				//decode the points from the polyline //
+				var points = polyline.decode(step.polyline);
+				for(var i = 0; i<points.length-1; i++ ) {
+					if(geolib.isPointNearLine(origin, points[i], points[i+1], accuracy))
+						originOnPath = true;
+					if(originOnPath) {
+						if(geolib.isPointNearLine(destination, points[i], points[i+1], accuracy)){
+							destinationOnPath = true;
+						}
+					}
+				}
+			}
+			if(originOnPath && destinationOnPath) {
+				validRides.push(ride);
+			}
+			
+		}
+	});
+	res.send(validRides);
 
 });
 
