@@ -5,26 +5,6 @@ var bodyParser = require('body-parser');
 var polyline = require('polyline');
 var geolib = require('geolib');
 
-//test geolib //
-
-var point = {
-	lat: 41.84604,
-	lng: -87.63931
-};
-
-var lineStart = {
-	lat: 41.81662,
-	lng: -87.73441
-};
-
-var lineEnd = {
-	lat: 41.82097,
-	lng: -87.63897
-};
-console.log(geolib);
-console.log(geolib.getDistanceFromLine(point, lineStart, lineEnd));
-console.log(geolib.isPointNearLine(point, lineStart, lineEnd, 3000));
-
 var mongoose = require('mongoose');
 
 //connect to the running db //
@@ -57,8 +37,14 @@ const PORT = 8080;
 
 // this posts a new ride to the server //
 app.post('/postRide', function(req, res) {
+	
   var ride =  new Ride(req.body);
-  ride.save();
+  
+  ride.save(function(err){ 
+	if(err) return err;
+	// otherwise it's saved. //
+	
+  });
   /*new Ride({
     name: req.body.driverName,
     from: {
@@ -89,7 +75,9 @@ app.post('/postRide', function(req, res) {
 
 app.post('/postUser', function(req, res) {
   var user = new User(req.body);
-  user.save();
+  user.save(function(err) {
+	  if(err) {}
+  });
   /*
   var user = new User({
     facebookId: req.body.facebookId,
