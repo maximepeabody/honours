@@ -1,5 +1,5 @@
-module.export = function() {
-  require('mongoose');
+ module.exports = function(mongoose) {
+
   // schemas // * try seperating file *
   var Schema = mongoose.Schema;
 
@@ -44,8 +44,8 @@ module.export = function() {
   });
 
   var models = {
-    Rides: mongoose.model('Rides', ridesSchema),
-    Users: mongoose.model('Users', usersSchema)
-  }
+    Rides: mongoose.model('Rides', rideSchema),
+    Users: mongoose.model('Users', userSchema)
+  };
   return models;
 }

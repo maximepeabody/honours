@@ -4,7 +4,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var polyline = require('polyline');
 var geolib = require('geolib');
-
 var mongoose = require('mongoose');
 
 //connect to the running db //
@@ -15,8 +14,8 @@ db.on('open', function() {  console.log('connected to dbs!');})
 
 //load the dbs models:
 //models.Rides and models.users //
-var models = require('./schemas');
-
+var models = require('./schemas.js')(mongoose);
+console.log(models);
 //deifne our express app
 var app = express();
 app.use(bodyParser.json());
@@ -38,7 +37,7 @@ const PORT = 8080;
 // this posts a new ride to the server //
 app.post('/postRide', function(req, res) {
 	
-  var ride =  new Ride(req.body);
+  var ride =  new models.Rides(req.body);
   
   ride.save(function(err){ 
 	if(err) return err;
@@ -74,11 +73,12 @@ app.post('/postRide', function(req, res) {
 });
 
 app.post('/postUser', function(req, res) {
-  var user = new User(req.body);
+  var user = new models.Users(req.body);
   user.save(function(err) {
 	  if(err) {}
   });
-  /*
+  res.send(user);  
+/*
   var user = new User({
     facebookId: req.body.facebookId,
     name: req.body.name,
@@ -117,7 +117,7 @@ app.post('/addPassengerToRide', function(req, res) {
 
 // gets ride based on ride id //
 app.get('/ride', function(req, res) {
-  db.find(req.id).then(function(ride) {
+  models.Rides.find(req.query.id).then(function(ride) {
 	  res.send(ride);
   });
   //req.query //
@@ -125,7 +125,7 @@ app.get('/ride', function(req, res) {
 
 // gets user based on user id //
 app.get('/user', function(req, res) {
-  db.find(req.id).then(function(user) {
+  models.User.find(req.query.id).then(function(user) {
 	  res.send(user);
   });
 });
@@ -139,7 +139,7 @@ app.get('/user', function(req, res) {
 // date:
 app.get('/queryRides', function(req, res) {
 	var query = req.query;
-	db.find(query);
+	models.Rides.find(query);
 });
 
 //gets list of rides based on ana advanced query //
