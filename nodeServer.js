@@ -35,55 +35,26 @@ const PORT = 8080;
 // -addPassengerToRide
 
 // this posts a new ride to the server //
-app.post('/postRide', function(req, res) {
-	
+app.post('/ride', function(req, res) {
+
   var ride =  new models.Rides(req.body);
-  
-  ride.save(function(err){ 
+
+  ride.save(function(err){
 	if(err) return err;
 	// otherwise it's saved. //
-	
-  });
-  /*new Ride({
-    name: req.body.driverName,
-    from: {
-      name: req.body.from.name,
-      lat: req.body.from.lat,
-      long: req.body.from.long
-    },
-    to: {
-      name: req.body.from.name,
-      lat: req.body.from.lat,
-      long: req.body.from.long
-    },
-    driverId: req.body.driverId,
-    date: req.body.date,
-    distance: req.body.distance,
-    route: {
-      distance: req.body.route.distance,
-      duration: req.body.route.duration,
-      durationInTraffic: req.body.route.durationInTraffic,
-      steps: req.body.route.steps
-    },
-    passengerIds: []
+
 
   });
-  */
+
   console.log(ride);
 });
 
-app.post('/postUser', function(req, res) {
+app.post('/user', function(req, res) {
   var user = new models.Users(req.body);
   user.save(function(err) {
 	  if(err) {}
   });
-  res.send(user);  
-/*
-  var user = new User({
-    facebookId: req.body.facebookId,
-    name: req.body.name,
-    rides: []
-  });*/
+  res.send(user);
 });
 
 app.post('/updateRide', function(req, res) {
@@ -126,8 +97,11 @@ app.get('/ride', function(req, res) {
 // gets user based on user id //
 app.get('/user', function(req, res) {
   models.User.find(req.query.id).then(function(user) {
+		console.log(user);
 	  res.send(user);
-  });
+  }, function(err) {
+		res.send(err);
+	});
 });
 
 // gets list of rides based on query //
@@ -139,7 +113,11 @@ app.get('/user', function(req, res) {
 // date:
 app.get('/queryRides', function(req, res) {
 	var query = req.query;
-	models.Rides.find(query);
+	models.Rides.find(query).then(function(rides) {
+		res.send(rides);
+	}, function(err) {
+		res.send(err);
+	});
 });
 
 //gets list of rides based on ana advanced query //
@@ -176,15 +154,15 @@ app.get('/advancedQueryRides', function(req, res) {
 	var validRides = [];
 	// for each ride in the bounding box, see if the origin/destination lies on the path//
 	db.find(bounds).then(function(rides) {
-		
+
 		//accuracy of pointInLine search, in meters //
 		var accuracy = 3000;
-		
+
 		for(ride in rides) {
 			// bool value to see if origin/destination are on the path //
 			var originOnPath = false;
 			var destinationOnPath = false;
-			
+
 			// for each step, and for each point inside the step //
 			for(step in ride.steps) {
 				//decode the points from the polyline //
@@ -202,7 +180,7 @@ app.get('/advancedQueryRides', function(req, res) {
 			if(originOnPath && destinationOnPath) {
 				validRides.push(ride);
 			}
-			
+
 		}
 	});
 	res.send(validRides);

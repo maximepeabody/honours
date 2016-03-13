@@ -6,27 +6,35 @@
   var rideSchema = new Schema({
     driverName: String,
     driverId: String,
-    from: {
+    origin: {
       lat: Number,
       long: Number,
       name: String
     },
-    to: {
+    destination: {
       lat: Number,
       long: Number,
       name: String
     },
     date: Date,
-    distance: Number,
+  //  distance: Number,
     route: {
-      distance: Number,
-      duration: Number,
-      durationInTraffic: Number,
+      distance: {
+        text: String,
+        value: Number
+      },
+      duration: {
+        text: String,
+        value: Number
+      },
+      durationInTraffic: {
+        text: String,
+        value: Number
+      },
       steps: [{
         htmlInstructions: String,
-        polyline: Number
-      }]
-    },
+        polyline: String
+      }],
     spots: Number,
     passengerIds: [String]
   });
@@ -36,8 +44,8 @@
     name: String,
     rides: [{
       id: String,
-      to: String,
-      from: String,
+      origin: String,
+      destination: String,
       date: Date,
       driverId: String
     }]

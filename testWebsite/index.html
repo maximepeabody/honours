@@ -1,44 +1,50 @@
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>test</title>
-  
-    <link rel="stylesheet" href="./angular-google-places-autocomplete/src/autocomplete.css">
+
+  <link rel="stylesheet" href="./angular-google-places-autocomplete/src/autocomplete.css">
 
   <script src="./angular/angular.js"></script>
-      <!-- google maps, for autocomplete location -->
-<script src="https://maps.googleapis.com/maps/api/js?libraries=places"></script>
-<script src="./angular-google-places-autocomplete/src/autocomplete.js"></script>
+  <!-- google maps, for autocomplete location -->
+  <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyD-o6MOmBn-8KSnjBOOGN6m_3AaWz9KKlo">
+  </script>  <script src="./angular-google-places-autocomplete/src/autocomplete.js"></script>
 
   <script src="app.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-resource.js"></script>
-  
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-resource.js"></script>
 
-  
+
+
 </head>
+
 <body>
-<div ng-app = "app">
-	<div ng-controller="postCtrl">
-		From: <input type="text" g-places-autocomplete force-selection="true" options="{
+  <div ng-app="app">
+    <div ng-controller="postCtrl">
+      From:
+      <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
                     }" placeholder="ex: Montreal" ng-model="ride.origin">
-            </label>
-		To:   <input type="text" g-places-autocomplete force-selection="true" options="{
+      </label>
+      To:
+      <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
                     }" placeholder="ex: Toronto" ng-model="ride.destination">
-            </label>
-		Date: <input type="date" ng-model="ride.date">
-		<button ng-click="postRide(ride)"> Post Ride </button>
-	</div>
-	
-	<div ng-controller="searchCtrl">
-	
-	</div>
-	
-	<div ng-controller="viewRidesCtrl"> 
-	
-	</div>
+      </label>
+      Date:
+      <input type="date" ng-model="ride.date">
+      <button ng-click="postRide(ride)"> Post Ride </button>
+    </div>
 
-</div>
+    <div ng-controller="searchCtrl">
+
+    </div>
+
+    <div ng-controller="viewRidesCtrl">
+
+    </div>
+
+  </div>
 </body>
+
 </html>

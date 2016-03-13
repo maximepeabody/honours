@@ -1,46 +1,76 @@
 angular.module('app', ['google.places', 'ngResource'])
-.controller('postCtrl', function($scope, $resource) {
-	
- 	$scope.postRide = function(ride) {
-		console.log(ride);
-		var formatedRide = {
-			origin: {
-				lat: ride.origin.geometry.location.lat(),
-				lng: ride.origin.geometry.location.lng(),
-				name: ride.origin.name
-			},
-			destination: {
-				lat: ride.destination.geometry.location.lat(),
-				lng: ride.destination.geometry.location.lng(),
-				name: ride.destination.name
-			},
-			date: ride.date
-		};
-		
-		var directionArgs = {
-			origin: formatedRide.origin.lat + ',' + formatedRide.origin.lng,
-			destination: formatedRide.destination.lat + ',' + formatedRide.destination.lng
-		};
-		
-		var DirectionsApi = $resource('https://maps.googleapis.com/maps/api/directions/json', {});
-		var directions;
-		DirectionsApi.get(directionArgs,function(dir) {
-			directions = dir;
-			console.log(dir);
-		});
+  .controller('postCtrl', function($scope, $resource) {
+
+		//google api
+		var directionsService = new google.maps.DirectionsService;
+
+		//format the inputted ride and directiosn info tos end to teh server//
+		var formatRide = function(ride, directions) {
+			ride.driverName = "name";
+			ride.driverId = "id";
+			ride.spots = 0;
+			var leg = directions.routes[0].legs[0];
+			ride.route.distance = leg.distance;
+			ride.route.duration = leg.duration;
+			ride.route.duration_in_traffic = leg.duration_in_traffic;
+			ride.route.steps = leg.steps;
+	/*		ride.bounds = {
+				northeast: {
+					lat: directions.routes[0].bounds.getNorthEast().getLat(),
+					lng: directions.route[0].bounds.getNorthEast().getLng()
+				},
+				southwest: {
+					lat: directions.routes[0].bounds.getSouthWest().getLat(),
+					lng: directions.route[0].bounds.getSouthWest().getLng()
+				}
+			};
+			*/
+
+		}
+
+    $scope.postRide = function(ride) {
+      console.log(ride);
+      var query = {
+        origin: {
+          lat: ride.origin.geometry.location.lat(),
+          lng: ride.origin.geometry.location.lng(),
+          name: ride.origin.name
+        },
+        destination: {
+          lat: ride.destination.geometry.location.lat(),
+          lng: ride.destination.geometry.location.lng(),
+          name: ride.destination.name
+        },
+        date: ride.date
+      };
+
+      var directionArgs = {
+        origin: query.origin.lat + ',' + query.origin.lng,
+        destination: query.destination.lat + ',' + query.destination.lng,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      var directions;
+      directionsService.route(directionArgs, function(response, status) {
+        console.log(response);
+        directions = response;
+      });
+
+
+
 
     };
-		
-		
-	
-})
+
+
+
+
+  })
 
 .controller('searchCtrl', function() {
-	
-	
+
+
 })
 
 .controller('viewRidesCtrl', function() {
-	
-	
+
+
 })
