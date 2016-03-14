@@ -5,7 +5,8 @@ var bodyParser = require('body-parser');
 var polyline = require('polyline');
 var geolib = require('geolib');
 var mongoose = require('mongoose');
-
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 //connect to the running db //
 mongoose.connect('mongodb://localhost/hiked');
 var db = mongoose.connection;
@@ -38,8 +39,9 @@ const PORT = 8080;
 app.post('/ride', function(req, res) {
 
   var ride =  new models.Rides(req.body);
-
+  console.log(ride);
   ride.save(function(err){
+
 	if(err) return err;
 	// otherwise it's saved. //
 
@@ -189,7 +191,7 @@ app.get('/advancedQueryRides', function(req, res) {
 
 // Delete methods:
 // -deleteRide -by id
-app.delete('ride', function(req, res) {
+app.delete('/ride', function(req, res) {
 
 });
 
