@@ -5,8 +5,7 @@ var bodyParser = require('body-parser');
 var polyline = require('polyline');
 var geolib = require('geolib');
 var mongoose = require('mongoose');
-app.use(bodyParser.json({limit: '50mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+
 //connect to the running db //
 mongoose.connect('mongodb://localhost/hiked');
 var db = mongoose.connection;
@@ -19,9 +18,8 @@ var models = require('./schemas.js')(mongoose);
 console.log(models);
 //deifne our express app
 var app = express();
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true}));
-
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 //defines a port we want to listen to
 const PORT = 8080;
 
