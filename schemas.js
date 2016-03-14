@@ -8,12 +8,12 @@
     driverId: String,
     origin: {
       lat: Number,
-      long: Number,
+      lng: Number,
       name: String
     },
     destination: {
       lat: Number,
-      long: Number,
+      lng: Number,
       name: String
     },
     date: Date,
@@ -21,7 +21,7 @@
     route: {
       distance: {
         text: String,
-        value: Number
+        value: Number 
       },
       duration: {
         text: String,
@@ -35,6 +35,7 @@
         htmlInstructions: String,
         polyline: String
       }],
+    },
     spots: Number,
     passengerIds: [String]
   });
