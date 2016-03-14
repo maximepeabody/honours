@@ -21,6 +21,7 @@
 <body>
   <div ng-app="app">
     <div ng-controller="postCtrl">
+      <h1> Post Ride </h1>
       From:
       <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
@@ -37,11 +38,26 @@
     </div>
 
     <div ng-controller="searchCtrl">
-
+      <h1> Search: </h1>
+      <div ng-repeat="ride in search.rides">
+        From: {{ride.origin}}
+        <br>
+        To: {{ride.destination}}
+        <br>
+        date: {{ride.date}}
+       </div>
     </div>
 
     <div ng-controller="viewRidesCtrl">
-
+      <h1> All rides </h1>
+      <button ng-click="getRides()"> get Rides </button>
+      <div ng-repeat="ride in rides">
+        From: {{ride.origin}}
+        <br>
+        To: {{ride.destination}}
+        <br>
+        date: {{ride.date}}
+       </div>
     </div>
 
   </div>

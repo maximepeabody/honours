@@ -1,6 +1,7 @@
 angular.module('app', ['google.places', 'ngResource'])
   .controller('postCtrl', function($scope, $resource) {
 
+		var rideDbs = $resource('http://45.55.157.150:8080', {});
 		//google api
 		var directionsService = new google.maps.DirectionsService;
 
@@ -14,18 +15,8 @@ angular.module('app', ['google.places', 'ngResource'])
 			ride.route.duration = leg.duration;
 			ride.route.duration_in_traffic = leg.duration_in_traffic;
 			ride.route.steps = leg.steps;
-	/*		ride.bounds = {
-				northeast: {
-					lat: directions.routes[0].bounds.getNorthEast().getLat(),
-					lng: directions.route[0].bounds.getNorthEast().getLng()
-				},
-				southwest: {
-					lat: directions.routes[0].bounds.getSouthWest().getLat(),
-					lng: directions.route[0].bounds.getSouthWest().getLng()
-				}
-			};
-			*/
 
+			return ride;
 		}
 
     $scope.postRide = function(ride) {
@@ -55,13 +46,13 @@ angular.module('app', ['google.places', 'ngResource'])
         directions = response;
       });
 
+			var ride = formatRide(query, directions);
+      rideDbs.post('/ride', ride).then(function(d){ console.log(d);});
+
 
 
 
     };
-
-
-
 
   })
 
