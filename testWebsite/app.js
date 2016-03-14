@@ -44,10 +44,11 @@ angular.module('app', ['google.places', 'ngResource'])
       directionsService.route(directionArgs, function(response, status) {
         console.log(response);
         directions = response;
+        var ride = formatRide(query, directions);
+        rideDbs.post('/ride', ride).then(function(d){ console.log(d);});
+
       });
 
-			var ride = formatRide(query, directions);
-      rideDbs.post('/ride', ride).then(function(d){ console.log(d);});
 
 
 
