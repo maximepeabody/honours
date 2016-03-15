@@ -166,39 +166,46 @@ app.get('/advancedQueryRides', function(req, res) {
 		if(err){console.log(err); return err;}
 
 		//accuracy of pointInLine search, in meters //
-		var accuracy = 3000;
+		var accuracy = 10000;
 
 		for(var f = 0; f<rides.length; f++) {
 			var ride = rides[f];
 			// bool value to see if origin/destination are on the path //
 			var originOnPath = false;
 			var destinationOnPath = false;
-
-			// for each step, and for each point inside the step //
-			for(var j = 0; j<ride.route.steps.length; j++) {
-				var step = ride.route.steps[j];
+			console.log(f);
+			
+			
+			
 				//decode the points from the polyline //
-				var points = polyline.decode(step.polyline);
+				var points = polyline.decode(ride.route.polyline);
 				if(points.length<2) break;
 				for(var i = 0; i<points.length-1; i++ ) {
 					var p1 = {lat: points[i][0], lng: points[i][1]};
 					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
-					if(geolib.isPointNearLine(origin, p1, p2, accuracy))
+					
+					if(!originOnPath && geolib.isPointNearLine(origin, p1, p2, accuracy)) { console.log("o on path");
 						originOnPath = true;
+					}
 					if(originOnPath) {
 						if(geolib.isPointNearLine(destination, p1, p2, accuracy)){
 							destinationOnPath = true;
+							console.log("d on path");
 						}
 					}
 				}
-			}
+			
 			if(originOnPath && destinationOnPath) {
+				console.log("valid ride");
+				console.log(ride);
 				validRides.push(ride);
 			}
 
 		}
+		res.send(validRides);
 	});
-	res.send(validRides);
+	console.log(validRides);
+	
 
 });
 
