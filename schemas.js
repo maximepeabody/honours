@@ -31,10 +31,7 @@
         text: String,
         value: Number
       },
-      steps: [{
-        htmlInstructions: String,
-        polyline: String
-      }],
+      polyline: String,
     },
     spots: Number,
     passengerIds: [String]
