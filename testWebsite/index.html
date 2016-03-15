@@ -39,7 +39,20 @@
 
     <div ng-controller="searchCtrl">
       <h1> Search: </h1>
-      <div ng-repeat="ride in search.rides">
+	  From:
+      <input type="text" g-places-autocomplete force-selection="true" options="{
+                        types: ['(cities)']
+                    }" placeholder="ex: Montreal" ng-model="query.origin">
+      </label>
+      To:
+      <input type="text" g-places-autocomplete force-selection="true" options="{
+                        types: ['(cities)']
+                    }" placeholder="ex: Toronto" ng-model="query.destination">
+      </label>
+	  <input type="date" ng-model="query.date">
+	  <input type="radio" ng-model = "query.type" value="advanced">
+	  <button ng-click="search(query)"> Search </button> 
+      <div ng-repeat="ride in searchResults">
         From: {{ride.origin}}
         <br>
         To: {{ride.destination}}

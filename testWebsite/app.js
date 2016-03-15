@@ -49,18 +49,27 @@ angular.module('app', ['google.places', 'ngResource'])
         var ride = formatRide(query, directions);
         rideDbs.save(ride);
       });
-
-
-
-
-
     };
 
   })
 
-.controller('searchCtrl', function() {
-
-
+.controller('searchCtrl', function($scope, $resource) {
+	var rideDbs = $resource('http://45.55.157.150:8080/ride');
+	$scope.search = function(query) {
+		console.log(query);
+		var q = {
+			originlat : query.origin.geometry.location.lat(),
+			originlng : query.origin.geometry.location.lng(),
+			destinationlat : query.destination.geometry.location.lat(),
+			destinationlng :query.destination.geometry.location.lng(),
+			date :query.date, 
+			type: query.type
+		};
+		console.log(q);
+		//console.log(rideDbs.query(q));
+		$scope.searchResults = rideDbs.query(q);
+		console.log($scope.searchResults);
+	};
 })
 
 .controller('viewRidesCtrl', function() {
