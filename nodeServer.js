@@ -160,7 +160,7 @@ app.get('/advancedQueryRides', function(req, res) {
 		'destination.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
 		'destination.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng}
 	};
-	models.Rides.find(query, function(err, rides) {
+	models.Rides.find({}, function(err, rides) {
 		console.log(rides);
 
 		if(err){console.log(err); return err;}
@@ -179,11 +179,14 @@ app.get('/advancedQueryRides', function(req, res) {
 				var step = ride.route.steps[j];
 				//decode the points from the polyline //
 				var points = polyline.decode(step.polyline);
+				if(points.length<2) break;
 				for(var i = 0; i<points.length-1; i++ ) {
-					if(geolib.isPointNearLine(origin, points[i], points[i+1], accuracy))
+					var p1 = {lat: points[i][0], lng: points[i][1]};
+					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
+					if(geolib.isPointNearLine(origin, p1, p2, accuracy))
 						originOnPath = true;
 					if(originOnPath) {
-						if(geolib.isPointNearLine(destination, points[i], points[i+1], accuracy)){
+						if(geolib.isPointNearLine(destination, p1, p2, accuracy)){
 							destinationOnPath = true;
 						}
 					}
