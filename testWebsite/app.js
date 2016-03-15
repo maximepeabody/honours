@@ -15,8 +15,18 @@ angular.module('app', ['google.places', 'ngResource'])
 			ride.route.distance = leg.distance;
 			ride.route.duration = leg.duration;
 			ride.route.duration_in_traffic = leg.duration_in_traffic;
-			ride.route.steps = leg.steps;
+			ride.route.steps = [];
+			// only add important info in steps //
+			for(var i = 0; i<leg.steps.length; i++ ) {
+				ride.route.steps.push (
+				{
+					polyline: leg.steps[i].polyline.points,
+					instructions: leg.steps[i].instructions
+				}
+				);
+			}
 
+			console.log(ride);
 			return ride;
 		}
 
