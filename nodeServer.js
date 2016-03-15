@@ -15,7 +15,7 @@ db.on('open', function() {  console.log('connected to dbs!');})
 //load the dbs models:
 //models.Rides and models.users //
 var models = require('./schemas.js')(mongoose);
-console.log(models);
+
 //deifne our express app
 var app = express();
 app.use(bodyParser.json({limit: '50mb'}));
@@ -35,11 +35,11 @@ const PORT = 8080;
 
 // this posts a new ride to the server //
 app.post('/ride', function(req, res) {
-
+  
   var ride =  new models.Rides(req.body);
   console.log(ride);
   ride.save(function(err){
-
+	if(err) console.log(err);
 	if(err) return err;
 	// otherwise it's saved. //
 
@@ -133,38 +133,50 @@ app.get('/queryRides', function(req, res) {
 // boundsouthwestlat:
 // boundsouthwestlng:
 app.get('/advancedQueryRides', function(req, res) {
+	console.log(req.query);
 	var bounds = {
 		northeast: {
-			lat: boundNortheastLat,
-			lng: boundNortheastLng
+			lat: req.query.boundNortheastLat,
+			lng: req.query.boundNortheastLng
 		},
 		southwest: {
-			lat:boundsouthwestlat,
-			lng: boundsouthwestlng
+			lat:req.query.boundSouthwestLat,
+			lng: req.query.boundSouthwestLng
 		}
 	};
 	var origin = {
-		lat: originlat,
-		lng: originlng
-	}
+		lat: req.query.originlat,
+		lng:  req.query.originlng
+	};
 	var destination = {
-		lat: destinationlat,
-		lng: destinationlng
+		lat: req.query.destinationlat,
+		lng: req.query.destinationlng
 	};
 	var validRides = [];
 	// for each ride in the bounding box, see if the origin/destination lies on the path//
-	db.find(bounds).then(function(rides) {
+	var query = {
+		'origin.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
+		'origin.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng},
+		'destination.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
+		'destination.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng}
+	};
+	models.Rides.find(query, function(err, rides) {
+		console.log(rides);
+
+		if(err){console.log(err); return err;}
 
 		//accuracy of pointInLine search, in meters //
 		var accuracy = 3000;
 
-		for(ride in rides) {
+		for(var f = 0; f<rides.length; f++) {
+			var ride = rides[f];
 			// bool value to see if origin/destination are on the path //
 			var originOnPath = false;
 			var destinationOnPath = false;
 
 			// for each step, and for each point inside the step //
-			for(step in ride.steps) {
+			for(var j = 0; j<ride.route.steps.length; j++) {
+				var step = ride.route.steps[j];
 				//decode the points from the polyline //
 				var points = polyline.decode(step.polyline);
 				for(var i = 0; i<points.length-1; i++ ) {
