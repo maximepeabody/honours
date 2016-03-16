@@ -107,6 +107,17 @@ app.get('/ride', function(req, res) {
 		'route.bounds.northeast.lng': {$gt: Number(req.query.destinationlng) - 0.1, $gt: Number(req.query.originlng) - 0.1},
 		'route.bounds.northeast.lat': {$gt: Number(req.query.originlat) - 0.1, $gt: Number(req.query.destinationlat) - 0.1}
 	};
+	if(req.query.date) {
+		var d1 = new Date(req.query.date);
+		d1.setSeconds(0);
+		d1.setHours(0);
+		d1.setMinutes(0);
+		var d2 = new Date(req.query.date);
+		d2.setSeconds(59);
+		d2.setHours(23);
+		d2.setMinutes(59);
+		query.date = {$gte:d1, $lte: d2};
+	}
 	models.Rides.find(query, function(err, rides) {
 		console.log(rides);
 
@@ -164,9 +175,21 @@ app.get('/ride', function(req, res) {
 		'origin.lat':{$lt:Number(req.query.originlat) + 0.1, $gt:Number(req.query.originlat) - 0.1},
 		'destination.lng': {$lt: Number(req.query.destinationlng) + 0.1, $gt: Number(req.query.destinationlng) - 0.1},
 		'destination.lat': {$lt: Number(req.query.destinationlat) + 0.1, $gt: Number(req.query.destinationlat) - 0.1}
+	
 	};
 	
-  	models.Rides.find(query, function(err, rides) {
+  	if(req.query.date) {
+		var d1 = new Date(req.query.date);
+		d1.setSeconds(0);
+		d1.setHours(0);
+		d1.setMinutes(0);
+		var d2 = new Date(req.query.date);
+		d2.setSeconds(59);
+		d2.setHours(23);
+		d2.setMinutes(59);
+		query.date = {$gte:d1, $lte: d2};
+	}
+	models.Rides.find(query, function(err, rides) {
 		if(err) {console.log(err); return err;}
 		console.log(rides);
 		res.send(rides);
