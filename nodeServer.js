@@ -38,14 +38,25 @@ app.post('/ride', function(req, res) {
   //if an id is provided, update the ride //
   var ride;
   if(req.body.id) {
-  	ride = models.Rides.findById(req.body.id);
+  	models.Rides.findById(req.body.id, function(err, ride) { 
+		if(err) { res.send(err);}
+		else {
+			for(var elem in req.body) { 
+				ride[elem] = req.body[elem];
+			}
+			ride.save(function(err) { if(err) res.send(err); else res.send("saved");});
+		}
+	});
+ 	
   }
   else {
   ride =  new models.Rides(req.body);
-  console.log(ride);
+  
   ride.save(function(err){
 	if(err) console.log(err);
 	if(err) return err;
+	res.send("saved");
+	console.log("saved");
 	// otherwise it's saved. //
   });
   }
@@ -65,36 +76,11 @@ app.post('/user', function(req, res) {
   res.send(user);
 });
 
-app.post('/updateRide', function(req, res) {
-	var query = {id: req.body.rideId};
-	Rides.update(query, req.body.update);
-});
-
-app.post('/updateUser', function(req, res) {
-	var query = {id: req.body.userId};
-	Users.update(query, req.body.update);
-});
-
-/*
-app.post('/addPassengerToRide', function(req, res) {
-	Users.findByIdAndUpdate(
-    req.body.rideId,
-    {$push: {"passengerIds": {id: req.body.passengerId}},
-    {safe: true, upsert: true},
-    function(err, model) {
-        console.log(err);
-    }
-);
-});
-*/
 
 // Get methods:
 // -getRide -by id
 // -getUser -by id
-// -queryRides
-// -advancedQueryRides
 
-// gets ride based on ride id //
 app.get('/ride', function(req, res) {
   console.log(req.query);
   //if id is provided, find the ride by id //
@@ -105,16 +91,6 @@ app.get('/ride', function(req, res) {
   }
   // otherwise, check if it's an advanced query //
   else if(req.query.type == "advanced") {
-	var bounds = {
-		northeast: {
-			lat: req.query.boundNortheastLat,
-			lng: req.query.boundNortheastLng
-		},
-		southwest: {
-			lat:req.query.boundSouthwestLat,
-			lng: req.query.boundSouthwestLng
-		}
-	};
 	var origin = {
 		lat: req.query.originlat,
 		lng:  req.query.originlng
@@ -126,12 +102,12 @@ app.get('/ride', function(req, res) {
 	var validRides = [];
 	// for each ride in the bounding box, see if the origin/destination lies on the path//
 	var query = {
-		'origin.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
-		'origin.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng},
-		'destination.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
-		'destination.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng}
+		'route.bounds.southwest.lng':{$lt: Number(req.query.originlng) + 0.1, $lt: Number(req.query.destinationlng) + 0.1},
+		'route.bounds.southwest.lat':{$lt:Number(req.query.originlat) + 0.1, $lt:Number(req.query.destinationlat) + 0.1},
+		'route.bounds.northeast.lng': {$gt: Number(req.query.destinationlng) - 0.1, $gt: Number(req.query.originlng) - 0.1},
+		'route.bounds.northeast.lat': {$gt: Number(req.query.originlat) - 0.1, $gt: Number(req.query.destinationlat) - 0.1}
 	};
-	models.Rides.find({}, function(err, rides) {
+	models.Rides.find(query, function(err, rides) {
 		console.log(rides);
 
 		if(err){console.log(err); return err;}
