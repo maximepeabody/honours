@@ -10,7 +10,7 @@ angular.module('starter.controllers', [])
 //queries based on 'origin' and 'destination' coordinates, + 'date'.
 //can add option destination query destination anywhere, or a date range
 
-.controller('SearchCtrl', function($scope, Auth, $resource, $ionicLoading, RidesDbs,$state){
+.controller('SearchCtrl', function($scope, Auth, $resource, $ionicLoading, RidesDbs, $state){
   //connect to ride dbs //
   //var rideDbs = $resource('http://45.55.157.150:8080/ride');
   //get user data //
@@ -78,7 +78,7 @@ angular.module('starter.controllers', [])
     console.log(result);
     console.log(ride);
     $scope.ride = result;
-  })
+  });
 })
 
 //controls the logout butdestinationn in the menu //
@@ -170,9 +170,9 @@ angular.module('starter.controllers', [])
         destination:  data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.lng(),
       };
 	  
-      var DirectionsApi = $resource('https://maps.googleapis.com/maps/api/directions/json', {});
+	  var directionsService = new google.maps.DirectionsService;	  
 	  var directions;
-	  DirectionsApi.get(directionsArgs).success(function(dir) {
+	  directionsService.route(directionArgs, function(dir, status) {
 		  directions = dir;
 		  var ride = formatRide(query, dir);
 		  
@@ -191,10 +191,12 @@ angular.module('starter.controllers', [])
 			  userRideData.rideId = rideId;
 			  userRideData.driver = dbs.driverid;
 			  userRideData.date = dbs.date;
-		      UserDbs.get({_id: $scope.authData.uid}).then(function(result){
-				console.log(result);
-				result.rides.push(userRideData);
-				result.$save();
+			  
+			  //UsersDbs.save()
+		      var user = UsersDbs.get({_id: $scope.authData.uid}, function {
+				console.log(user);
+				user.rides.push(userRideData);
+				user.$save();
 			  });
 		  });
 	  });
@@ -214,47 +216,6 @@ angular.module('starter.controllers', [])
     return(data.origin != null && data.destination != null && data.date != null );
   };
 
-  //function that takes input data and formats it for database //
-  savedestinationDbs = function(data, dbs) {
-    // copy input origin data destination dbs reference //
-    dbs.origin = {
-      name: data.origin.name,
-      lat: data.origin.geometry.location.lat(),
-      lng: data.origin.geometry.location.lng()
-    };
-    dbs.destination = {
-      name: data.destination.name,
-      lat: data.destination.geometry.location.lat(),
-      lng: data.destination.geometry.location.lng()
-    };
-    dbs.date = data.date;
-    dbs.time = data.time;
-    dbs.spots = data.spots;
-    dbs.driverid = $scope.authData.uid;
-
-    // save destination ride database //
-    dbs.$save().then(function(m){
-      $ionicLoading.hide();
-      $scope.showConfirm();
-
-      // now save destination user database
-      rideId = m._id.$oid;
-      var userRideData = {};
-      userRideData.origin = data.origin.name;
-      userRideData.destination = data.destination.name;
-      userRideData.rideId = rideId;
-      userRideData.driver = dbs.driverid;
-      userRideData.date = dbs.date;
-      UserDbs.getById($scope.authData.uid).then(function(result){
-        console.log(result);
-        result.rides.push(userRideData);
-        result.$saveOrUpdate();
-        console.log("here i should save the ride destination the user dbs");
-      });
-
-
-    });
-  };
   clear = function() {
     $scope.data = {};
   };
@@ -315,16 +276,15 @@ angular.module('starter.controllers', [])
                       $state.go('menu.rides');
                     });
 
-                    // check dbs for user data, if not there, save it.
-                    //UserDbs.query({})
-                    user = new UserDbs();
+                    // save or update user data //
+                    var user ={};
                     user.name = userdata.name;
                     user.image = userdata.image;
+					user.fbid = userdata.fbid;
                     user._id = authData.uid;
-                    user.rides =  [];
-                    user.$saveOrUpdate().then(function(){
-                      console.log("saved");
-                    });
+                    UsersDbs.save(user).then(function(response) {
+						console.log(response);
+					});
 
                     console.log(authData);
 
@@ -340,17 +300,15 @@ angular.module('starter.controllers', [])
                         $state.go('menu.rides');
                       });
 
-                      // check dbs for user data, if not there, save it.
-                      //UserDbs.query({})
-                      user = new UserDbs();
-                      user.name = userdata.name;
-                      user.image = userdata.image;
-                      user._id = userdata.fbid;
-                      user.rides = [];
-                      user.$saveOrUpdate().then(function(){
-                        console.log("saved");
-                      });
-                      console.log(authData);
+						// save or update user data //
+						var user ={};
+						user.name = userdata.name;
+						user.image = userdata.image;
+						user.fbid = userdata.fbid;
+						user._id = authData.uid;
+						UsersDbs.save(user).then(function(response) {
+							console.log(response);
+						});
 
                     }).catch(function (error) {
                         console.log(error);
@@ -362,14 +320,13 @@ angular.module('starter.controllers', [])
 })
 
 //
-.controller('MyRidesCtrl', function ($scope, $firebaseArray, Auth, RidesDbs, UserDbs) {
+.controller('MyRidesCtrl', function ($scope, $firebaseArray, Auth, RidesDbs, UsersDbs) {
   $scope.authData = Auth.$getAuth();
   //$scope.rideArray = [];
 
-  UserDbs.getById($scope.authData.uid).then(function(user){
+  UsersDbs.get({_id: $scope.authData.uid}).then(function(user){
     $scope.rides = user.rides;
     console.log(user);
-  //  console.log($scope.authData.uid);
 }, function(error) {
   console.log(error);
 });

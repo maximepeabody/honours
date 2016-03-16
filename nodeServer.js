@@ -26,28 +26,19 @@ const PORT = 8080;
 
 // here we define the REST api //
 
-// Post methods :
-// -postRide
-// -postUser
-// -updateRide
-// -updateUser
-// -addPassengerToRide
-
-// this posts a new ride to the server //
+// this posts a new ride to the server, or updates an existing ride if  //
+// an id is provided// 
 app.post('/ride', function(req, res) {
   //if an id is provided, update the ride //
-  //var ride;
-  if(req.body.id) {
-  	models.Rides.findById(req.body.id, function(err, ride) { 
+  var ride;
+  if(req.body._id) {
+  	models.Rides.findById(req.body._id, function(err, ride) { 
 		if(err) { res.send(err);}
 		else {
 			for(var elem in req.body) { 
 				ride[elem] = req.body[elem];
 			}
-			ride.save(function(err) { 
-			if(err) res.send(err); 
-			else res.send("saved");
-			});
+			ride.save(function(err) { if(err) res.send(err); else res.send("saved");});
 		}
 	});
  	
@@ -66,27 +57,38 @@ app.post('/ride', function(req, res) {
   console.log(ride);
 });
 
+// create a new user, or update an existing one //
 app.post('/user', function(req, res) {
-  if(req.body.id) {
-	  models.Users.findById(req.body.id, function(err, user) {
-		  if(err) { console.log(err); return err;}
+
+	models.Users.findById(req.body._id, function(err, user) {
+		  //create a new user //
+		  if(err) { 
+			console.log(err); 
+			user = new models.Users(req.body);
+			user.save(function(err) {
+				if(err) {
+					console.log(err);
+					res.send(err);
+				}
+				else {
+					res.send("saved");
+				}
+			});
+		  }
+		  //otherwise we found a user, so update it//
 		  for(var elem in req.body) { 
-			user[elem] = req.body[elem];
-		}
-		user.save(function(err) { 
-			if(err) res.send(err); 
-			else res.send("saved);
-		});
-		  
-	  }
-  }
-  else { 
-  user = new models.Users(req.body);
-  user.save(function(err) {
-	  if(err) {}
-	  else res.send("saved");
+				user[elem] = req.body[elem];
+		  }
+		  user.save(function(err) {
+			  if(err) {
+				  console.log(err); 
+				  res.send(err);
+			  }
+			  else { 
+				res.send("saved");
+			  }
+		  });
   });
-  }
 });
 
 
@@ -97,8 +99,8 @@ app.post('/user', function(req, res) {
 app.get('/ride', function(req, res) {
   console.log(req.query);
   //if id is provided, find the ride by id //
-  if(req.query.id) {
-  models.Rides.findById(req.query.id).then(function(ride) {
+  if(req.query._id) {
+  models.Rides.findById(req.query._id).then(function(ride) {
 	  res.send(ride);
   });
   }
@@ -213,7 +215,7 @@ app.get('/ride', function(req, res) {
 
 // gets user based on user id //
 app.get('/user', function(req, res) {
-  models.User.find(req.query.id).then(function(user) {
+  models.User.find(req.query._id).then(function(user) {
 		console.log(user);
 	  res.send(user);
   }, function(err) {

@@ -4,7 +4,7 @@ angular.module('starter.services', [])
     var userRef = new Firebase("https://hiked.firebaseio.com/users");
     return $firebaseAuth(userRef);
 })
-.factory('UserDbs', function($resource) {
+.factory('UsersDbs', function($resource) {
   return $resource('http://45.55.157.150:8080/user')
 })
 .factory('RidesDbs', function ($resource) {
