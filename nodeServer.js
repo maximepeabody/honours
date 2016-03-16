@@ -36,7 +36,7 @@ const PORT = 8080;
 // this posts a new ride to the server //
 app.post('/ride', function(req, res) {
   //if an id is provided, update the ride //
-  var ride;
+  //var ride;
   if(req.body.id) {
   	models.Rides.findById(req.body.id, function(err, ride) { 
 		if(err) { res.send(err);}
@@ -44,7 +44,10 @@ app.post('/ride', function(req, res) {
 			for(var elem in req.body) { 
 				ride[elem] = req.body[elem];
 			}
-			ride.save(function(err) { if(err) res.send(err); else res.send("saved");});
+			ride.save(function(err) { 
+			if(err) res.send(err); 
+			else res.send("saved");
+			});
 		}
 	});
  	
@@ -64,16 +67,26 @@ app.post('/ride', function(req, res) {
 });
 
 app.post('/user', function(req, res) {
-  var user;
   if(req.body.id) {
+	  models.Users.findById(req.body.id, function(err, user) {
+		  if(err) { console.log(err); return err;}
+		  for(var elem in req.body) { 
+			user[elem] = req.body[elem];
+		}
+		user.save(function(err) { 
+			if(err) res.send(err); 
+			else res.send("saved);
+		});
+		  
+	  }
   }
   else { 
   user = new models.Users(req.body);
   user.save(function(err) {
 	  if(err) {}
+	  else res.send("saved");
   });
   }
-  res.send(user);
 });
 
 
