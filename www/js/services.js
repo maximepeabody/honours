@@ -4,9 +4,9 @@ angular.module('starter.services', [])
     var userRef = new Firebase("https://hiked.firebaseio.com/users");
     return $firebaseAuth(userRef);
 })
-.factory('UserDbs', function($mongolabResourceHttp) {
-  return $mongolabResourceHttp('users');
+.factory('UserDbs', function($resource) {
+  return $resource('http://45.55.157.150:8080/user')
 })
-.factory('RidesDbs', function ($mongolabResourceHttp) {
-    return $mongolabResourceHttp('rides');
+.factory('RidesDbs', function ($resource) {
+    return $resource('http://45.55.157.150:8080/ride');
 });

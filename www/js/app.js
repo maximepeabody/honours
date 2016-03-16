@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'firebase', 'ngRoute','mongolabResourceHttp', 'dbaq.google.directions'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'ngResource', 'firebase', 'ngRoute', 'dbaq.google.directions'])
 
 .constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
 

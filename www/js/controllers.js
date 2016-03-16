@@ -10,35 +10,29 @@ angular.module('starter.controllers', [])
 //queries based on 'origin' and 'destination' coordinates, + 'date'.
 //can add option destination query destination anywhere, or a date range
 
-.controller('SearchCtrl', function($scope, Auth, $firebaseArray, RidesDbs, $ionicLoading, $state){
+.controller('SearchCtrl', function($scope, Auth, $resource, $ionicLoading, RidesDbs,$state){
+  //connect to ride dbs //
+  //var rideDbs = $resource('http://45.55.157.150:8080/ride');
   //get user data //
   $scope.authData = Auth.$getAuth();
-  var userRidesRef = $firebaseArray(new Firebase("http://hiked.firebaseio.com/users/" + $scope.authData.uid + "/rides/"));
 
   // error for input validation /./
   $scope.error = false;
   $scope.errorMessage = "";
-
   $scope.noRides = false;
 
   $scope.search = function(input) {
+	//if there is no error //
     if(validate(input)) {
-      //then there is no error//
       $scope.error = false;
+	  
       //create a query //
       var query = {};
-      query.origin = {"lat": input.origin.geometry.location.lat(), "long": input.origin.geometry.location.lng()};
-      query.destination =  {"lat": input.destination.geometry.location.lat(), "long": input.destination.geometry.location.lng()}
-      query.day = input.date.getDay();
-      query.month = input.date.getMonth();
-      query.year = input.date.getYear();
-      queryJson = {'origin.long': {$lt: query.originCoord.long + 0.1, $gt: query.originCoord.long - 0.1},
-                   'origin.lat': {$lt: query.originCoord.lat + 0.1, $gt: query.originCoord.lat - 0.1},
-                   'destination.long': {$lt: query.destinationCoord.long + 0.1, $gt: query.destinationCoord.long - 0.1},
-                   'destination.lat': {$lt: query.destinationCoord.lat + 0.1,$gt: query.destinationCoord.lat - 0.1},
-                   day: query.day,
-                   month: query.month,
-                   year: query.year};
+      query.originlat = input.origin.geometry.location.lat();
+	  query.originlng = input.origin.geometry.location.lng();
+      query.destinationlat =  input.destination.geometry.location.lat();
+	  query.destionationlng = input.destination.geometry.location.lng();
+	  query.type = input.type;
      // destination query a date range, do date: {$lt: query.dateorigin + 1, $gt: query.datedestination -1}
 
       // send a query destination the dbs, once a response is given, create popup //
@@ -46,10 +40,12 @@ angular.module('starter.controllers', [])
         template: 'Searching...'
       });
 
-      RidesDbs.query(queryJson).then(function(results){
+      $scope.rides = RidesDbs.query(queryJson); 
+	  
+	   $scope.rides.then(function(results){
         console.log(results);
         $ionicLoading.hide();
-        $scope.rides=results;
+        //$scope.rides=results;
         if($scope.rides.length == 0) {
           $scope.noRides = true;
         }
@@ -58,6 +54,7 @@ angular.module('starter.controllers', [])
         }
         console.log('queried');
       });
+	  
     }
     else{
       $scope.error = true;
@@ -83,6 +80,7 @@ angular.module('starter.controllers', [])
     $scope.ride = result;
   })
 })
+
 //controls the logout butdestinationn in the menu //
 .controller('MenuCtrl', function($scope, Auth, $state) {
   $scope.logout = function() {
@@ -102,7 +100,7 @@ angular.module('starter.controllers', [])
 // time
 // number of passengers
 // approximate cost:
-.controller('PostRideCtrl', function ($scope, RidesDbs, Auth, $ionicPopup, UserDbs, $ionicLoading, googleDirections) {
+.controller('PostRideCtrl', function ($scope, Auth, RidesDbs, UsersDbs, $ionicPopup, $ionicLoading, googleDirections) {
   //data variable for the input.
   $scope.data = {};
 
@@ -119,25 +117,87 @@ angular.module('starter.controllers', [])
   // get reference destination user in dbs //
   $scope.authData = Auth.$getAuth();
 
-  // function that takes input and creates a ride on server //
+  var formatRide = function(ride, directions) {
+			ride.driverName = "name";
+			ride.driverId = "id";
+			ride.spots = 0;
+			var leg = directions.routes[0].legs[0];
+			ride.route = {};
+			ride.route.distance = leg.distance;
+			ride.route.duration = leg.duration;
+			ride.route.duration_in_traffic = leg.duration_in_traffic;
+			ride.route.polyline = directions.routes[0].overview_polyline;
+			var bounds = directions.routes[0].bounds;
+			ride.route.bounds = { 
+				northeast: {
+					lat:bounds.getNorthEast().lat(),
+					lng:bounds.getNorthEast().lng()
+				},
+				southwest: {
+					lat:bounds.getSouthWest().lat(),
+					lng:bounds.getSouthWest().lng()
+				}
+			};
+
+			console.log(ride);
+			return ride;
+	}
+	
+    // function that takes input and creates a ride on server //
   $scope.postRide = function(data) {
     console.log(data);
+	
     if(validate(data)) {
       $scope.error = false;
-      var directionArgs = {
-        origin: data.origin.geometry.location.lat() + ',' + data.origin.geometry.location.long(),
-        destination:  data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.long(),
+	  
+	  var query = {
+        origin: {
+          lat: data.origin.geometry.location.lat(),
+          lng: data.origin.geometry.location.lng(),
+          name: data.origin.name
+        },
+        destination: {
+          lat: data.destination.geometry.location.lat(),
+          lng: data.destination.geometry.location.lng(),
+          name: data.destination.name
+        },
+        date: data.date
       };
+	  
+	  
+      var directionArgs = {
+        origin: data.origin.geometry.location.lat() + ',' + data.origin.geometry.location.lng(),
+        destination:  data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.lng(),
+      };
+	  
       var DirectionsApi = $resource('https://maps.googleapis.com/maps/api/directions/json', {});
 	  var directions;
 	  DirectionsApi.get(directionsArgs).success(function(dir) {
 		  directions = dir;
-		  var Ride = new RidesDbs();
+		  var ride = formatRide(query, dir);
+		  
           //create loading screen //
           $ionicLoading.show({
           template: 'Loading...'
+		  RidesDbs.save(ride).then(function(m){
+			  $ionicLoading.hide();
+			  $scope.showConfirm();
+
+			  // now save destination user database
+			  rideId = m._id.$oid;
+			  var userRideData = {};
+			  userRideData.origin = data.origin.name;
+			  userRideData.destination = data.destination.name;
+			  userRideData.rideId = rideId;
+			  userRideData.driver = dbs.driverid;
+			  userRideData.date = dbs.date;
+		      UserDbs.get({_id: $scope.authData.uid}).then(function(result){
+				console.log(result);
+				result.rides.push(userRideData);
+				result.$save();
+			  });
+		  });
       });
-      savedestinationDbs(data, Ride);
 	  });
  
 
@@ -161,12 +221,12 @@ angular.module('starter.controllers', [])
     dbs.origin = {
       name: data.origin.name,
       lat: data.origin.geometry.location.lat(),
-      long: data.origin.geometry.location.long()
+      lng: data.origin.geometry.location.lng()
     };
     dbs.destination = {
       name: data.destination.name,
       lat: data.destination.geometry.location.lat(),
-      long: data.destination.geometry.location.long()
+      lng: data.destination.geometry.location.lng()
     };
     dbs.date = data.date;
     dbs.time = data.time;
