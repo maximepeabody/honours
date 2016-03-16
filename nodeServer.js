@@ -62,7 +62,7 @@ app.post('/user', function(req, res) {
 
 	models.Users.findById(req.body._id, function(err, user) {
 		  //create a new user //
-		  if(err) { 
+		  if(!user || err) { 
 			console.log(err); 
 			user = new models.Users(req.body);
 			user.save(function(err) {
@@ -75,6 +75,7 @@ app.post('/user', function(req, res) {
 				}
 			});
 		  }
+		  else {
 		  //otherwise we found a user, so update it//
 		  for(var elem in req.body) { 
 				user[elem] = req.body[elem];
@@ -88,6 +89,7 @@ app.post('/user', function(req, res) {
 				res.send("saved");
 			  }
 		  });
+		}
   });
 });
 
@@ -215,7 +217,7 @@ app.get('/ride', function(req, res) {
 
 // gets user based on user id //
 app.get('/user', function(req, res) {
-  models.User.find(req.query._id).then(function(user) {
+  models.Users.findById(req.query._id).then(function(user) {
 		console.log(user);
 	  res.send(user);
   }, function(err) {

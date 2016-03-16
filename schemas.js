@@ -48,7 +48,9 @@
   });
 
   var userSchema = new Schema({
+    _id: String,
     facebookId: String,
+    image: String,
     name: String,
     rides: [{
       id: String,

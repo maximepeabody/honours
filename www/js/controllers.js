@@ -27,22 +27,21 @@ angular.module('starter.controllers', [])
       $scope.error = false;
 	  
       //create a query //
-      var query = {};
-      query.originlat = input.origin.geometry.location.lat();
-	  query.originlng = input.origin.geometry.location.lng();
-      query.destinationlat =  input.destination.geometry.location.lat();
-	  query.destionationlng = input.destination.geometry.location.lng();
-	  query.type = input.type;
+      var q = {
+      	originlat: input.origin.geometry.location.lat(),
+	originlng: input.origin.geometry.location.lng(),
+        destinationlat: input.destination.geometry.location.lat(),
+	destinationlng : input.destination.geometry.location.lng(),
+	type : input.type
+	};
      // destination query a date range, do date: {$lt: query.dateorigin + 1, $gt: query.datedestination -1}
 
       // send a query destination the dbs, once a response is given, create popup //
       $ionicLoading.show({
         template: 'Searching...'
       });
-
-      $scope.rides = RidesDbs.query(queryJson); 
-	  
-	   $scope.rides.then(function(results){
+	console.log(q);
+      $scope.rides = RidesDbs.query(q, function(results){
         console.log(results);
         $ionicLoading.hide();
         //$scope.rides=results;
@@ -74,11 +73,10 @@ angular.module('starter.controllers', [])
 
 .controller('RideViewCtrl', function($scope, Auth, ride, RidesDbs){
   console.log(ride);
-  RidesDbs.getById(ride).then(function(result) {
+  $scope.ride = RidesDbs.get(ride, function(result) {
     console.log(result);
     console.log(ride);
-    $scope.ride = result;
-  });
+    });
 })
 
 //controls the logout butdestinationn in the menu //
@@ -100,7 +98,7 @@ angular.module('starter.controllers', [])
 // time
 // number of passengers
 // approximate cost:
-.controller('PostRideCtrl', function ($scope, Auth, RidesDbs, UsersDbs, $ionicPopup, $ionicLoading, googleDirections) {
+.controller('PostRideCtrl', function ($scope, Auth, RidesDbs, UsersDbs, $ionicPopup, $ionicLoading) {
   //data variable for the input.
   $scope.data = {};
 
@@ -168,7 +166,8 @@ angular.module('starter.controllers', [])
       var directionArgs = {
         origin: data.origin.geometry.location.lat() + ',' + data.origin.geometry.location.lng(),
         destination:  data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.lng(),
-      };
+        travelMode: google.maps.TravelMode.DRIVING
+	};
 	  
 	  var directionsService = new google.maps.DirectionsService;	  
 	  var directions;
@@ -176,28 +175,32 @@ angular.module('starter.controllers', [])
 		  directions = dir;
 		  var ride = formatRide(query, dir);
 		  
-          //create loading screen //
-          $ionicLoading.show({
-          template: 'Loading...' });
-		  RidesDbs.save(ride).then(function(m){
+         	 //create loading screen //
+          	$ionicLoading.show({
+          	template: 'Loading...' });
+		
+                // get user data so we can add it to the ride //
+
+		var user = UsersDbs.get({_id: $scope.authData.uid});
+		ride.driverId = $scope.authData.uid;
+		ride.driverName = user.name;
+  
+                RidesDbs.save(ride, function(m){
 			  $ionicLoading.hide();
 			  $scope.showConfirm();
 
 			  // now save destination user database
-			  rideId = m._id.$oid;
+			  console.log(m);
+			  rideId = m._id;
 			  var userRideData = {};
 			  userRideData.origin = data.origin.name;
 			  userRideData.destination = data.destination.name;
-			  userRideData.rideId = rideId;
-			  userRideData.driver = dbs.driverid;
-			  userRideData.date = dbs.date;
-			  
-			  //UsersDbs.save()
-		      var user = UsersDbs.get({_id: $scope.authData.uid}, function {
-				console.log(user);
-				user.rides.push(userRideData);
-				user.$save();
-			  });
+			  userRideData.id = rideId;
+			  userRideData.driverId = data.driverid;
+			  userRideData.date = data.date;
+			  user.rides.push(userRideData);
+			  user.$save();
+			 
 		  });
 	  });
  
@@ -282,7 +285,7 @@ angular.module('starter.controllers', [])
                     user.image = userdata.image;
 					user.fbid = userdata.fbid;
                     user._id = authData.uid;
-                    UsersDbs.save(user).then(function(response) {
+                    UsersDbs.save(user, function(response) {
 						console.log(response);
 					});
 
@@ -306,7 +309,7 @@ angular.module('starter.controllers', [])
 						user.image = userdata.image;
 						user.fbid = userdata.fbid;
 						user._id = authData.uid;
-						UsersDbs.save(user).then(function(response) {
+						UsersDbs.save(user, function(response) {
 							console.log(response);
 						});
 
@@ -324,11 +327,9 @@ angular.module('starter.controllers', [])
   $scope.authData = Auth.$getAuth();
   //$scope.rideArray = [];
 
-  UsersDbs.get({_id: $scope.authData.uid}).then(function(user){
+  UsersDbs.get({_id: $scope.authData.uid}, function(user){
     $scope.rides = user.rides;
     console.log(user);
-}, function(error) {
-  console.log(error);
 });
 
   $scope.upcoming = function(item) {
