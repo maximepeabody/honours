@@ -22,6 +22,10 @@
                 <span class="input-label">Date:</span>
                 <input type="date" placeholder="" ng-model = "data.date">
             </label>
+
+
+		<ion-checkbox ng-model="data.type" value="advanced">Advanced Query </ion-checkbox>
+
             <div class="button-bar"></div>
             <button class="button  button-block " ng-click = "search(data)">Search</button>
         </form>
@@ -31,7 +35,7 @@
 
         <ion-list>
           <ion-item ng-repeat="ride in rides" ui-sref='menu.rideView({rideid: ride._id.$oid})'>
-            From {{ride.origin}} to {{ride.destination}} on {{ride.date}}, Driver: {{ride.driverid}}
+            From {{ride.origin.name}} to {{ride.destination.name}} on {{ride.date }}, Driver: {{ride.driverName}}
           </ion-item>
           <ion-item ng-show="noRides" >
             Sorry, there are no rides for this search...

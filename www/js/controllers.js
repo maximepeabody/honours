@@ -34,6 +34,9 @@ angular.module('starter.controllers', [])
 	destinationlng : input.destination.geometry.location.lng(),
 	type : input.type
 	};
+	if(input.type) {
+		q.type = "advanced";
+	}
      // destination query a date range, do date: {$lt: query.dateorigin + 1, $gt: query.datedestination -1}
 
       // send a query destination the dbs, once a response is given, create popup //
@@ -42,7 +45,7 @@ angular.module('starter.controllers', [])
       });
 	console.log(q);
       $scope.rides = RidesDbs.query(q, function(results){
-        console.log(results);
+	console.log(results);
         $ionicLoading.hide();
         //$scope.rides=results;
         if($scope.rides.length == 0) {
@@ -181,11 +184,11 @@ angular.module('starter.controllers', [])
 		
                 // get user data so we can add it to the ride //
 
-		var user = UsersDbs.get({_id: $scope.authData.uid});
-		ride.driverId = $scope.authData.uid;
-		ride.driverName = user.name;
+		var user = UsersDbs.get({_id: $scope.authData.uid}, function() {
+			ride.driverId = $scope.authData.uid;
+			ride.driverName = user.name;
   
-                RidesDbs.save(ride, function(m){
+                	RidesDbs.save(ride, function(m){
 			  $ionicLoading.hide();
 			  $scope.showConfirm();
 
@@ -202,6 +205,7 @@ angular.module('starter.controllers', [])
 			  user.$save();
 			 
 		  });
+		});
 	  });
  
 
