@@ -35,25 +35,33 @@ const PORT = 8080;
 
 // this posts a new ride to the server //
 app.post('/ride', function(req, res) {
-  
-  var ride =  new models.Rides(req.body);
+  //if an id is provided, update the ride //
+  var ride;
+  if(req.body.id) {
+  	ride = models.Rides.findById(req.body.id);
+  }
+  else {
+  ride =  new models.Rides(req.body);
   console.log(ride);
   ride.save(function(err){
 	if(err) console.log(err);
 	if(err) return err;
 	// otherwise it's saved. //
-
-
   });
-
+  }
   console.log(ride);
 });
 
 app.post('/user', function(req, res) {
-  var user = new models.Users(req.body);
+  var user;
+  if(req.body.id) {
+  }
+  else { 
+  user = new models.Users(req.body);
   user.save(function(err) {
 	  if(err) {}
   });
+  }
   res.send(user);
 });
 
@@ -88,9 +96,106 @@ app.post('/addPassengerToRide', function(req, res) {
 
 // gets ride based on ride id //
 app.get('/ride', function(req, res) {
-  models.Rides.find(req.query.id).then(function(ride) {
+  console.log(req.query);
+  //if id is provided, find the ride by id //
+  if(req.query.id) {
+  models.Rides.findById(req.query.id).then(function(ride) {
 	  res.send(ride);
   });
+  }
+  // otherwise, check if it's an advanced query //
+  else if(req.query.type == "advanced") {
+	var bounds = {
+		northeast: {
+			lat: req.query.boundNortheastLat,
+			lng: req.query.boundNortheastLng
+		},
+		southwest: {
+			lat:req.query.boundSouthwestLat,
+			lng: req.query.boundSouthwestLng
+		}
+	};
+	var origin = {
+		lat: req.query.originlat,
+		lng:  req.query.originlng
+	};
+	var destination = {
+		lat: req.query.destinationlat,
+		lng: req.query.destinationlng
+	};
+	var validRides = [];
+	// for each ride in the bounding box, see if the origin/destination lies on the path//
+	var query = {
+		'origin.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
+		'origin.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng},
+		'destination.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
+		'destination.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng}
+	};
+	models.Rides.find({}, function(err, rides) {
+		console.log(rides);
+
+		if(err){console.log(err); return err;}
+
+		//accuracy of pointInLine search, in meters //
+		var accuracy = 5000;
+
+		for(var f = 0; f<rides.length; f++) {
+			var ride = rides[f];
+			// bool value to see if origin/destination are on the path //
+			var originOnPath = false;
+			var destinationOnPath = false;
+		
+			
+			
+			
+				//decode the points from the polyline //
+				var points = polyline.decode(ride.route.polyline);
+				if(points.length<2) break;
+				for(var i = 0; i<points.length-1; i++ ) {
+					var p1 = {lat: points[i][0], lng: points[i][1]};
+					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
+					
+					if(!originOnPath && geolib.isPointNearLine(origin, p1, p2, accuracy)) { console.log("o on path");
+						console.log(geolib.getDistanceFromLine(origin,p1,p2));
+						console.log("p1: " + p1.lat + ", " + p1.lng);
+						console.log("p2: " + p2.lat + "," + p2.lng);
+						originOnPath = true;
+					}
+					if(originOnPath) {
+						if(geolib.isPointNearLine(destination, p1, p2, accuracy)){
+							destinationOnPath = true;
+							console.log("d on path");
+						}
+					}
+				}
+			
+			if(originOnPath && destinationOnPath) {
+				console.log("valid ride");
+				console.log(ride);
+				validRides.push(ride);
+			}
+
+		}
+		res.send(validRides);
+
+  	});
+  }
+  //otherwise it's a regular from-to query//
+  else {
+	console.log("regular query");
+	var query = {
+		'origin.lng':{$lt: Number(req.query.originlng) + 0.1, $gt: Number(req.query.originlng) - 0.1},
+		'origin.lat':{$lt:Number(req.query.originlat) + 0.1, $gt:Number(req.query.originlat) - 0.1},
+		'destination.lng': {$lt: Number(req.query.destinationlng) + 0.1, $gt: Number(req.query.destinationlng) - 0.1},
+		'destination.lat': {$lt: Number(req.query.destinationlat) + 0.1, $gt: Number(req.query.destinationlat) - 0.1}
+	};
+	
+  	models.Rides.find(query, function(err, rides) {
+		if(err) {console.log(err); return err;}
+		console.log(rides);
+		res.send(rides);
+	});
+  }
   //req.query //
 });
 
