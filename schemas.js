@@ -23,6 +23,16 @@
         text: String,
         value: Number 
       },
+      bounds: {
+	northeast: { 
+		lat: Number,
+		lng: Number
+	},
+	southwest: {
+		lat: Number,
+		lng: Number
+	}
+      },
       duration: {
         text: String,
         value: Number
