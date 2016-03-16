@@ -11,7 +11,7 @@ angular.module('app', ['google.places', 'ngResource'])
 			ride.driverId = "id";
 			ride.spots = 0;
 			var leg = directions.routes[0].legs[0];
-      ride.route = {};
+			ride.route = {};
 			ride.route.distance = leg.distance;
 			ride.route.duration = leg.duration;
 			ride.route.duration_in_traffic = leg.duration_in_traffic;
