@@ -289,7 +289,7 @@ angular.module('starter.controllers', [])
 // connects with facebook, and authenticates with firebase
 // sdestinationres the facebook uid and image on the dbs
 // each user has a unique uid
-.controller('LoginCtrl', function ($scope, $ionicPopover, Auth, $state, $firebaseArray, $firebaseObject, UserDbs) {
+.controller('LoginCtrl', function ($scope, $ionicPopover, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs) {
 
 
         //register -> brings destination register page
