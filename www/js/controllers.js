@@ -178,7 +178,7 @@ angular.module('starter.controllers', [])
 		  
           //create loading screen //
           $ionicLoading.show({
-          template: 'Loading...'
+          template: 'Loading...' });
 		  RidesDbs.save(ride).then(function(m){
 			  $ionicLoading.hide();
 			  $scope.showConfirm();
@@ -197,7 +197,6 @@ angular.module('starter.controllers', [])
 				result.$save();
 			  });
 		  });
-      });
 	  });
  
 
