@@ -70,11 +70,13 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs,CurrentUser) {
-  $scope.user = CurrentUser.data;
+.controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, CurrentUser, $localStorage) {
+//  $scope.user = CurrentUser.data;
+  $scope.user = $localStorage.getObject('user');
+  $scope.ride = $localStorage.getObject('viewObject')
   console.log(CurrentUser);
   console.log(RideViewObject);
-  $scope.ride = RideViewObject.rideObject;
+//  $scope.ride = RideViewObject.rideObject;
 })
 
 //controls the logout button in the menu //
@@ -113,7 +115,7 @@ angular.module('starter.controllers', [])
   $scope.authData = Auth.$getAuth();
 
   var formatRide = function(ride, directions) {
-  //  ride.spots = 0;
+    //  ride.spots = 0;
     var leg = directions.routes[0].legs[0];
     ride.route = {};
     ride.route.distance = leg.distance;
@@ -233,22 +235,13 @@ angular.module('starter.controllers', [])
   };
 })
 
-//if ever i integrate email or other authentication //
-.controller('RegisterCtrl', function($scope, $ionicPopup) {
-  $scope.register = function(data) {
-
-
-  }
-})
-
 // controls the login
 // connects with facebook, and authenticates with firebase
 // sdestinationres the facebook uid and image on the dbs
 // each user has a unique uid
 //todo switch over to storing user data only on node server //
-.controller('LoginCtrl', function($scope, $ionicPopover, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs ) {
+.controller('LoginCtrl', function($scope, $ionicPopover, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs, $localStorage) {
   //the following logs in with facebook with either a popup or a redirect
-
   var saveUserData = function(authData) {
     // check firebase for user data //
     var userRef = $firebaseObject(new Firebase("http://hiked.firebaseio.com/users/" + authData.uid));
@@ -269,7 +262,9 @@ angular.module('starter.controllers', [])
       user.image = userdata.image;
       user.fbid = userdata.fbid;
       user._id = authData.uid;
-      UsersDbs.save(user);
+      UsersDbs.save(user, function(u) {
+        $localStorage.setObject('user', u);
+      });
       $state.go('menu.rides');
     });
   };
@@ -277,23 +272,24 @@ angular.module('starter.controllers', [])
   $scope.fbLogin = function() {
     // uses the firebase authentication service to get data from facebook //
     Auth.$authWithOAuthPopup("facebook").then(saveUserData)
-    .catch(function(error) {
-      Auth.$authWithOAuthRedirect("facebook").then(saveUserData).catch(function(error) {
-        console.log(error);
-      })
+      .catch(function(error) {
+        Auth.$authWithOAuthRedirect("facebook").then(saveUserData).catch(function(error) {
+          console.log(error);
+        })
 
-    })
+      })
 
   };
 })
 
 //
-.controller('MyRidesCtrl', function($scope, $state, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, CurrentUser) {
+.controller('MyRidesCtrl', function($scope, $state, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, CurrentUser, $localStorage) {
   $scope.authData = Auth.$getAuth();
 
   //for clicking on a ride //
   $scope.goTo = function(ride) {
     RideViewObject.setRideObject(ride);
+    $localStorage.setObject('viewObject', ride);
     $state.go('menu.rideView');
   }
 
@@ -304,13 +300,13 @@ angular.module('starter.controllers', [])
   });
 
   $scope.upcoming = function(item) {
-      destinationday = new Date();
-      dd = destinationday.getDate();
-      yy = destinationday.getYear();
-      mm = destinationday.getMonth() + 1;
-      yymmdd = dd + mm * 100 + yy * 10000;
-      return item.date > yymmdd;
-    }
+    destinationday = new Date();
+    dd = destinationday.getDate();
+    yy = destinationday.getYear();
+    mm = destinationday.getMonth() + 1;
+    yymmdd = dd + mm * 100 + yy * 10000;
+    return item.date > yymmdd;
+  }
 })
 
 
@@ -322,5 +318,7 @@ angular.module('starter.controllers', [])
 // connects with firebase destination grab the user info, and displays it
 .controller('AccountCtrl', function($scope, Auth, UsersDbs) {
   $scope.authData = Auth.$getAuth();
-  $scope.user = UsersDbs.get({_id: $scope.authData.uid});
+  $scope.user = UsersDbs.get({
+    _id: $scope.authData.uid
+  });
 });

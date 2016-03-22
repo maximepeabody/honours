@@ -5,26 +5,30 @@
     <ion-content overflow-scroll="true" padding="true" class="has-header">
         <form class="list">
             <label class="item item-input">
-                <span class="input-label">From:</span>
+                <span class="input-label">*From:</span>
                  <input type="text" g-places-autocomplete force-selection="true" options="{
                         types: ['(cities)']
                     }" placeholder="ex: Montreal" ng-model="data.origin">
             </label>
             <label class="item item-input">
-                <span class="input-label">To:</span>
+                <span class="input-label">*To:</span>
                 <input type="text" g-places-autocomplete  force-selection="true" options="{
                         types: ['(cities)']
                     }"placeholder="ex: Toronto" ng-model="data.destination">
             </label>
             <label class="item item-input">
-                <span class="input-label">Date:</span>
+                <span class="input-label">*Date:</span>
                 <input type="date" placeholder="" ng-model="data.date">
             </label>
             <label class="item item-input item-select">
-                <span class="input-label">Time:</span>
+                <span class="input-label">*Time:</span>
                 <select ng-model="data.time">
                   <option ng-repeat="time in times "> {{time}} </option>
                 </select>
+            </label>
+            <label class="item item-input">
+                <span class="input-label">*Cost Per Passenger:</span>
+                <input type="text" placeholder="" ng-model="data.cost">
             </label>
             <label class="item item-input">
                 <span class="input-label">Pickup Location:</span>
@@ -35,7 +39,7 @@
                 <input type="text" placeholder="" ng-model="data.info">
             </label>
             <label class="item item-input item-select">
-                <span class="input-label" >Avaialble Seats:</span>
+                <span class="input-label" >*Avaialble Seats:</span>
                 <select ng-model="data.spots">
                     <option> 1 </option>
                     <option> 2 </option>

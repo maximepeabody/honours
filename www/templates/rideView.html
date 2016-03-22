@@ -8,12 +8,15 @@
       <div class="list card">
 
         <div class="item item-avatar">
+          <img ng-show="ride.driver !== user._id" src="{{ride.driver.image}}">
+
           <h2> <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b></h2>
         </div>
 
         <div class="item item-body">
           <p>On:  {{ride.date}}</p>
           <p>driverName: {{ride.driverName}} </p>
+          <p>Description: {{ride.description}}</p>
           <div ng-show = "ride.driver === user._id">
             <p> Passengers: </p>
             <p> Passenger Requests: </p>
