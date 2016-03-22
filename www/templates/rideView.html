@@ -2,20 +2,26 @@
   <ion-nav-buttons side="left">
       <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
+  <ion-nav-back-button>
+ </ion-nav-back-button>
     <ion-content overflow-scroll="true" padding="true" class="has-header">
       <div class="list card">
 
         <div class="item item-avatar">
-          <h2> <b>{{ride.from}}</b> to <b>{{ride.to}}</b></h2>
-          <p>On  {{ride.date}}</p>
+          <h2> <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b></h2>
         </div>
 
         <div class="item item-body">
+          <p>On:  {{ride.date}}</p>
+          <p>driverName: {{ride.driverName}} </p>
+          <div ng-show = "ride.driver === user._id">
+            <p> Passengers: </p>
+            <p> Passenger Requests: </p>
+        </div>
           <p>
             {{ride.description}}
           </p>
-          <button ng-click = "requestRide()"> Request Ride </button>
-
+          <button ng-show="ride.driver !== user._id" class="button  button-block " ng-click = "requestRide()"> Request Ride </button>
         </div>
 
       </div>
