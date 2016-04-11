@@ -44,12 +44,14 @@ app.get('/requests', function(req, res) {
     models.Requests.find({rideId: rideid}, function(err, requests) {
       if(err) return err;
       res.send(requests);
-  }
+  });
+}
   else if(userid) {
     models.Requests.find({userId: userid}, function(err, requests) {
       if(err) return err;
       res.send(requests);
-  }
+  });
+}
 });
 // this posts a new ride to the server, or updates an existing ride if  //
 // an id is provided//
