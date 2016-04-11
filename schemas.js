@@ -53,13 +53,7 @@
     // facebookId: String,
      image: String,
      name: String,
-     rides: [{
-       id: ObjectId /*,
-       origin: String,
-       destination: String,
-       date: Date,
-       driverId: String*/
-     }]
+     rides: [Schema.Types.ObjectId]
    });
 
    var requestSchema = new Schema({
