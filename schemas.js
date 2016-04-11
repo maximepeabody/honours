@@ -54,7 +54,7 @@
      image: String,
      name: String,
      rides: [{
-       id: ObjectId,
+       id: Schema.Types.ObjectId,
        origin: String,
        destination: String,
        date: Date,
@@ -64,7 +64,7 @@
 
    var requestSchema = new Schema({
      userId: String,
-     rideId: ObjectId,
+     rideId: Schema.Types.ObjectId,
      message: String,
      passengerId: String
    });
