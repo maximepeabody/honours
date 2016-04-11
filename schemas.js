@@ -54,11 +54,11 @@
      image: String,
      name: String,
      rides: [{
-       id: ObjectId,
+       id: ObjectId /*,
        origin: String,
        destination: String,
        date: Date,
-       driverId: String
+       driverId: String*/
      }]
    });
 
