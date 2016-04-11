@@ -1,5 +1,30 @@
 angular.module('starter.services', [])
+.factory('DateFormater', function() {
+  var formatter = {};
+  formatter.monthNames = [
+  "January", "February", "March",
+  "April", "May", "June", "July",
+  "August", "September", "October",
+  "November", "December"
+];
 
+  formatter.formatDay = function(date) {
+    return date.getDate(date);
+  };
+  formatter.formatMonth = function(date) {
+    return date.getMonth(date);
+  };
+
+  formatter.formatYear = function(date) {
+    return date.getFullYear(date);
+  }
+
+  formatter.formatToString = function(date) {
+    var newDate = new Date(date);
+    return formatter.formatDay(newDate) + "-" + formatter.monthNames[formatter.formatMonth(newDate)] + "-" + formatter.formatYear(newDate);
+  };
+  return formatter;
+})
 .factory('$localStorage', ['$window', function($window) {
   return {
     set: function(key, value) {

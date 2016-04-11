@@ -10,18 +10,19 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 .constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
 
 .run(function ($ionicPlatform, Auth, $rootScope, $state) {
-    //stateChange event
+
+    //this gets called every time the user changes pages (states)
     $rootScope.$on("$stateChangeStart", function(event, toState, toParams, fromState, fromParams){
       console.log("stateChange");
       console.log(Auth.$getAuth());
       console.log(toState);
       console.log(toState.AuthRequired);
 
+    // if the page that the user wants to go to needs authentication, check if the user is logged in
     if (toState.AuthRequired && !Auth.$getAuth()){ //Assuming the AuthService holds authentication logic
       // User isn’t authenticated
       console.log("block");
       $state.transitionTo("login");
-    //  event.preventDefault();
     }
     });
     $ionicPlatform.ready(function () {
@@ -111,23 +112,6 @@ AuthRequired: true
         }
 
     })
-/*  .state('menu.rideView', {
-      url: '/:rideid',
-      AuthRequired: true,
-      views: {
-        'menuContent':{
-          templateUrl: 'templates/rideView.html',
-          controller: 'RideViewCtrl',
-          resolve: {
-            ride: function($stateParams, UserDbs) {
-              console.log($stateParams.rideid);
-              return $stateParams.rideid;
-            }
-          }
-        }
-      }
-    })*/
-
     .state('menu.search', {
         url: '/search',
         AuthRequired: true,

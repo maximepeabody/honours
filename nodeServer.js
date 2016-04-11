@@ -27,25 +27,25 @@ const PORT = 8080;
 // here we define the REST api //
 
 // this posts a new ride to the server, or updates an existing ride if  //
-// an id is provided// 
+// an id is provided//
 app.post('/ride', function(req, res) {
   //if an id is provided, update the ride //
   var ride;
   if(req.body._id) {
-  	models.Rides.findById(req.body._id, function(err, ride) { 
+  	models.Rides.findById(req.body._id, function(err, ride) {
 		if(err) { res.send(err);}
 		else {
-			for(var elem in req.body) { 
+			for(var elem in req.body) {
 				ride[elem] = req.body[elem];
 			}
 			ride.save(function(err) { if(err) res.send(err); else res.send("saved");});
 		}
 	});
- 	
+
   }
   else {
   ride =  new models.Rides(req.body);
-  
+
   ride.save(function(err){
 	if(err) console.log(err);
 	if(err) return err;
@@ -62,8 +62,8 @@ app.post('/user', function(req, res) {
 
 	models.Users.findById(req.body._id, function(err, user) {
 		  //create a new user //
-		  if(!user || err) { 
-			console.log(err); 
+		  if(!user || err) {
+			console.log(err);
 			user = new models.Users(req.body);
 			user.save(function(err) {
 				if(err) {
@@ -77,15 +77,15 @@ app.post('/user', function(req, res) {
 		  }
 		  else {
 		  //otherwise we found a user, so update it//
-		  for(var elem in req.body) { 
+		  for(var elem in req.body) {
 				user[elem] = req.body[elem];
 		  }
 		  user.save(function(err) {
 			  if(err) {
-				  console.log(err); 
+				  console.log(err);
 				  res.send(err);
 			  }
-			  else { 
+			  else {
 				res.send("saved");
 			  }
 		  });
@@ -148,17 +148,17 @@ app.get('/ride', function(req, res) {
 			// bool value to see if origin/destination are on the path //
 			var originOnPath = false;
 			var destinationOnPath = false;
-		
-			
-			
-			
+
+
+
+
 				//decode the points from the polyline //
 				var points = polyline.decode(ride.route.polyline);
 				if(points.length<2) break;
 				for(var i = 0; i<points.length-1; i++ ) {
 					var p1 = {lat: points[i][0], lng: points[i][1]};
 					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
-					
+
 					if(!originOnPath && geolib.isPointNearLine(origin, p1, p2, accuracy)) { console.log("o on path");
 						console.log(geolib.getDistanceFromLine(origin,p1,p2));
 						console.log("p1: " + p1.lat + ", " + p1.lng);
@@ -172,7 +172,7 @@ app.get('/ride', function(req, res) {
 						}
 					}
 				}
-			
+
 			if(originOnPath && destinationOnPath) {
 				console.log("valid ride");
 				console.log(ride);
@@ -192,9 +192,9 @@ app.get('/ride', function(req, res) {
 		'origin.lat':{$lt:Number(req.query.originlat) + 0.1, $gt:Number(req.query.originlat) - 0.1},
 		'destination.lng': {$lt: Number(req.query.destinationlng) + 0.1, $gt: Number(req.query.destinationlng) - 0.1},
 		'destination.lat': {$lt: Number(req.query.destinationlat) + 0.1, $gt: Number(req.query.destinationlat) - 0.1}
-	
+
 	};
-	
+
   	if(req.query.date) {
 		var d1 = new Date(req.query.date);
 		d1.setSeconds(0);
@@ -295,16 +295,16 @@ app.get('/advancedQueryRides', function(req, res) {
 			var originOnPath = false;
 			var destinationOnPath = false;
 			console.log(f);
-			
-			
-			
+
+
+
 				//decode the points from the polyline //
 				var points = polyline.decode(ride.route.polyline);
 				if(points.length<2) break;
 				for(var i = 0; i<points.length-1; i++ ) {
 					var p1 = {lat: points[i][0], lng: points[i][1]};
 					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
-					
+
 					if(!originOnPath && geolib.isPointNearLine(origin, p1, p2, accuracy)) { console.log("o on path");
 						originOnPath = true;
 					}
@@ -315,7 +315,7 @@ app.get('/advancedQueryRides', function(req, res) {
 						}
 					}
 				}
-			
+
 			if(originOnPath && destinationOnPath) {
 				console.log("valid ride");
 				console.log(ride);
@@ -326,7 +326,7 @@ app.get('/advancedQueryRides', function(req, res) {
 		res.send(validRides);
 	});
 	console.log(validRides);
-	
+
 
 });
 

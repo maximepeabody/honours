@@ -4,13 +4,13 @@ angular.module('starter.controllers', [])
 //controls the search function.
 //connects with the database, and queries it with the given input
 //queries based on 'origin' and 'destination' coordinates, + 'date'.
-//can add option destination query destination anywhere, or a date range
+//can add option destination query destination anywhere
 
-.controller('SearchCtrl', function($scope, RideViewObject, Auth, $resource, $ionicLoading, RidesDbs, $state) {
+.controller('SearchCtrl', function($scope, RideViewObject, Auth, $resource, $ionicLoading, RidesDbs, $state, DateFormater) {
   //get user data //
   $scope.authData = Auth.$getAuth();
-
-  // error for input validation /./
+  $scope.dateFormater = DateFormater;
+  // error for input validation //
   $scope.error = false;
   $scope.errorMessage = "";
   $scope.noRides = false;
@@ -18,34 +18,24 @@ angular.module('starter.controllers', [])
   $scope.goTo = function(ride) {
     RideViewObject.setRideObject(ride);
     $state.go("menu.rideView");
-  }
+  };
 
   $scope.search = function(input) {
-    //if there is no error //
+    //if there is no error with the input, then try to query the database//
     if (validate(input)) {
       $scope.error = false;
 
       //create a query //
-      var q = {
-        originlat: input.origin.geometry.location.lat(),
-        originlng: input.origin.geometry.location.lng(),
-        destinationlat: input.destination.geometry.location.lat(),
-        destinationlng: input.destination.geometry.location.lng(),
-        type: input.type
-      };
-      if (input.type) {
-        q.type = "advanced";
-      }
-
+      var q = createQuery(input);
 
       // show a loading popup while we wait for a response from the dbs//
       $ionicLoading.show({
         template: 'Searching...'
       });
+
       // query the database // returns a array
       $scope.rides = RidesDbs.query(q, function(results) {
         $ionicLoading.hide();
-
         if ($scope.rides.length == 0) {
           $scope.noRides = true;
         } else {
@@ -63,20 +53,43 @@ angular.module('starter.controllers', [])
   };
 
   //validates a query. origin, destination and date must be filled //
-  validate = function(input) {
+  var validate = function(input) {
     if (input == null)
       return false;
     return (input.origin != null && input.destination != null && input.date != null);
   }
+
+  //creates a valid query from the input //
+  var createQuery = function(input) {
+    var q = {
+      originlat: input.origin.geometry.location.lat(),
+      originlng: input.origin.geometry.location.lng(),
+      destinationlat: input.destination.geometry.location.lat(),
+      destinationlng: input.destination.geometry.location.lng(),
+      type: input.type
+    };
+    if (input.type) {
+      q.type = "advanced";
+    }
+    return q;
+  }
 })
 
-.controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, CurrentUser, $localStorage) {
-//  $scope.user = CurrentUser.data;
-  $scope.user = $localStorage.getObject('user');
-  $scope.ride = $localStorage.getObject('viewObject')
-  console.log(CurrentUser);
-  console.log(RideViewObject);
-//  $scope.ride = RideViewObject.rideObject;
+.controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, UsersDbs, $ionicLoading,  $localStorage, DateFormater) {
+  $scope.dateFormater = DateFormater;
+  $scope.authData = Auth.$getAuth();
+  $scope.user = UsersDbs.get({
+    _id: $scope.authData.uid
+  }, function() {console.log($scope.user)});
+
+  $scope.ride = $localStorage.getObject('viewObject');
+
+  //send a request to the driver
+  $scope.requestRide = function(ride) {
+    var driverId = ride.driverId;
+    var rideId = ride.id;
+    var userId = $scope.user.id;
+  };
 })
 
 //controls the logout button in the menu //
@@ -88,7 +101,7 @@ angular.module('starter.controllers', [])
   };
 })
 
-// controller destination post the ride data destination server //
+// controls the postRide page. takes user input and posts a ride to the database //
 // ride data has form:
 // origin: city
 // destination  : city
@@ -114,6 +127,94 @@ angular.module('starter.controllers', [])
   // get reference destination user in dbs //
   $scope.authData = Auth.$getAuth();
 
+  // function that takes input and creates a ride on server //
+  $scope.postRide = function(data) {
+
+    if (validate(data)) {
+      $scope.error = false;
+      var query = formatQuery(data);
+
+
+      var directionArgs = {
+        origin: data.origin.geometry.location.lat() + ',' + data.origin.geometry.location.lng(),
+        destination: data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.lng(),
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+
+      var directionsService = new google.maps.DirectionsService;
+      var directions;
+
+      directionsService.route(directionArgs, function(dir, status) {
+        directions = dir;
+        var ride = formatRide(query, dir);
+
+        //create loading screen //
+        $ionicLoading.show({
+          template: 'Loading...'
+        });
+
+        // add UserData //
+        $scope.user = UsersDbs.get({_id: $scope.authData.uid, nopopulate:true}, function(user){
+          console.log(user);
+          console.log($scope.user)
+          ride.driver = $scope.authData.uid;
+          ride.driverName = $scope.user.name;
+
+          RidesDbs.save(ride, function(response) {
+              console.log(response);
+              user.rides.push(response._id);
+              user.$save();
+          });
+        });
+        $ionicLoading.hide();
+        $scope.showConfirm();
+      });
+
+
+    } else {
+      console.log("error");
+      $scope.error = true;
+      $scope.errorMessage = "Please fill out the required fields";
+    }
+  };
+
+  //popup code //
+  // A confirm dialog
+  $scope.showConfirm = function() {
+    var confirmPopup = $ionicPopup.confirm({
+      title: 'Confirmation',
+      template: 'Thank you! Your ride has been posted'
+    });
+
+    confirmPopup.then(function(res) {
+      if (res) {
+        console.log('confirmed');
+        clear();
+      } else {
+        console.log('canceled');
+      }
+    });
+  };
+
+  var formatQuery = function(data) {
+    var query = {
+      origin: {
+        lat: data.origin.geometry.location.lat(),
+        lng: data.origin.geometry.location.lng(),
+        name: data.origin.name
+      },
+      destination: {
+        lat: data.destination.geometry.location.lat(),
+        lng: data.destination.geometry.location.lng(),
+        name: data.destination.name
+      },
+      date: data.date
+    };
+
+    return query;
+  };
+
+  //format the ride with the google directions //
   var formatRide = function(ride, directions) {
     //  ride.spots = 0;
     var leg = directions.routes[0].legs[0];
@@ -136,75 +237,6 @@ angular.module('starter.controllers', [])
 
     console.log(ride);
     return ride;
-  }
-
-  // function that takes input and creates a ride on server //
-  $scope.postRide = function(data) {
-    console.log(data);
-
-    if (validate(data)) {
-      $scope.error = false;
-
-      var query = {
-        origin: {
-          lat: data.origin.geometry.location.lat(),
-          lng: data.origin.geometry.location.lng(),
-          name: data.origin.name
-        },
-        destination: {
-          lat: data.destination.geometry.location.lat(),
-          lng: data.destination.geometry.location.lng(),
-          name: data.destination.name
-        },
-        date: data.date
-      };
-
-
-      var directionArgs = {
-        origin: data.origin.geometry.location.lat() + ',' + data.origin.geometry.location.lng(),
-        destination: data.destination.geometry.location.lat() + ',' + data.destination.geometry.location.lng(),
-        travelMode: google.maps.TravelMode.DRIVING
-      };
-
-      var directionsService = new google.maps.DirectionsService;
-      var directions;
-
-      directionsService.route(directionArgs, function(dir, status) {
-        directions = dir;
-        var ride = formatRide(query, dir);
-
-        //create loading screen //
-        $ionicLoading.show({
-          template: 'Loading...'
-        });
-
-        // get user data so we can add it to the ride //
-
-        var user = UsersDbs.get({
-          _id: $scope.authData.uid
-        }, function(u) {
-          ride.driver = $scope.authData.uid;
-          ride.driverName = u.name;
-
-          RidesDbs.save(ride, function(m) {
-            $ionicLoading.hide();
-            $scope.showConfirm();
-
-            // now save destination user database
-            console.log(m);
-            rideId = m._id;
-            user.rides.push(rideId);
-            user.$save();
-          });
-        });
-      });
-
-
-    } else {
-      console.log("error");
-      $scope.error = true;
-      $scope.errorMessage = "Please fill out the required fields";
-    }
   };
 
   // function which validates the input //
@@ -216,23 +248,7 @@ angular.module('starter.controllers', [])
   clear = function() {
     $scope.data = {};
   };
-  //popup code //
-  // A confirm dialog
-  $scope.showConfirm = function() {
-    var confirmPopup = $ionicPopup.confirm({
-      title: 'Confirmation',
-      template: 'Thank you! Your ride has been posted'
-    });
 
-    confirmPopup.then(function(res) {
-      if (res) {
-        console.log('confirmed');
-        clear();
-      } else {
-        console.log('canceled');
-      }
-    });
-  };
 })
 
 // controls the login
@@ -264,6 +280,7 @@ angular.module('starter.controllers', [])
       user._id = authData.uid;
       UsersDbs.save(user, function(u) {
         $localStorage.setObject('user', u);
+        console.log(u);
       });
       $state.go('menu.rides');
     });
@@ -283,8 +300,12 @@ angular.module('starter.controllers', [])
 })
 
 //
-.controller('MyRidesCtrl', function($scope, $state, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, CurrentUser, $localStorage) {
+.controller('MyRidesCtrl', function($scope, $state, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, CurrentUser, $localStorage, DateFormater) {
+  $scope.dateFormater = DateFormater;
   $scope.authData = Auth.$getAuth();
+  $scope.user = UsersDbs.get({
+    _id: $scope.authData.uid
+  }, function() {console.log($scope.user)});
 
   //for clicking on a ride //
   $scope.goTo = function(ride) {
@@ -293,11 +314,8 @@ angular.module('starter.controllers', [])
     $state.go('menu.rideView');
   }
 
-  $scope.user = UsersDbs.get({
-    _id: $scope.authData.uid
-  }, function(u) {
-    CurrentUser.setData(u);
-  });
+
+
 
   $scope.upcoming = function(item) {
     destinationday = new Date();
@@ -315,7 +333,6 @@ angular.module('starter.controllers', [])
 })
 
 // controls the account view
-// connects with firebase destination grab the user info, and displays it
 .controller('AccountCtrl', function($scope, Auth, UsersDbs) {
   $scope.authData = Auth.$getAuth();
   $scope.user = UsersDbs.get({

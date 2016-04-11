@@ -5,7 +5,7 @@
     <ion-content overflow-scroll="true" padding="true" class="has-header">
         <ion-list>
             <ion-item class="item-divider" >Upcoming Rides</ion-item>
-            <ion-item ng-repeat="ride in user.rides" ng-click="goTo(ride)">{{ride.origin.name}} to {{ride.destination.name}} on {{ride.date}}</ion-item>
+            <ion-item ng-repeat="ride in user.rides" ng-click="goTo(ride)">{{ride.origin.name}} to {{ride.destination.name}}, on {{dateFormater.formatToString(ride.date)}}</ion-item>
         </ion-list>
     </ion-content>
 </ion-view>

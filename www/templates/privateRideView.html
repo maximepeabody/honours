@@ -6,30 +6,30 @@
  </ion-nav-back-button>
     <ion-content overflow-scroll="true" padding="true" class="has-header">
       <div class="list card">
+
         <div class="item item-avatar">
-          <img  ng-src="{{ride.driver.image}}">
+          <img src="{{ride.driver.image}}">
           <h2> <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b></h2>
         </div>
 
         <div class="item item-body">
-          <p>On:  {{dateFormater.formatToString(ride.date)}}</p>
-          <p>Driver: {{ride.driverName}} </p>
-          <p>Driver Rating: {{ride.driver.rating}} </p>
-          <p>Ride Info: {{ride.description}}</p>
-          <p>
-            {{ride.description}}
-          </p>
-          <div ng-show = "ride.driver === user._id">
+          <p>On:  {{ride.date}}</p>
+          <p>Description: {{ride.description}}</p>
+
             <p> Passengers: </p>
             <p ng-repeat="passenger in ride.passengers" ng-click="viewProfile(passenger.id)">
               <img src="{{passenger.image}}">
               <p> {{passenger.name}} </p>
             </p>
         </div>
-          <button ng-show="ride.driver !== user._id" class="button  button-block" ng-click = "requestRide(ride)"> Request Ride </button>
-        </div>
+
       </div>
-
-
+      <div>
+        <h2> Chat: </h2>
+        <ion-list>
+            <ion-item ng-repeat="message in ride.messages"> <b> {{message.name}} : </b> {{message.content}}</ion-item>
+        </ion-list>
+        <input> </input> <button> Submit </button>  
+      </div>
     </ion-content>
 </ion-view>
