@@ -57,8 +57,10 @@
 
 
 
+
        type: Schema.Types.ObjectId,
        ref: 'Rides' /*,
+
        origin: String,
        destination: String,
        date: Date,
