@@ -50,7 +50,6 @@ app.get('/requests', function(req, res) {
       if(err) return err;
       res.send(requests);
   }
-
 });
 // this posts a new ride to the server, or updates an existing ride if  //
 // an id is provided//
