@@ -157,7 +157,7 @@ angular.module('starter.controllers', [])
         $scope.user = UsersDbs.get({_id: $scope.authData.uid, nopopulate:true}, function(user){
           console.log(user);
           console.log($scope.user)
-          ride.driver = $scope.authData.uid;
+          ride.driverId = $scope.authData.uid;
           ride.driverName = $scope.user.name;
 
           RidesDbs.save(ride, function(response) {

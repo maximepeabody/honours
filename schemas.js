@@ -54,11 +54,15 @@
      image: String,
      name: String,
      rides: [{
-       id: Schema.Types.ObjectId,
+
+
+
+       id: ObjectId /*,
+
        origin: String,
        destination: String,
        date: Date,
-       driverId: String
+       driverId: String*/
      }]
    });
 
