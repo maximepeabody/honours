@@ -276,7 +276,7 @@ angular.module('starter.controllers', [])
       var user = {};
       user.name = userdata.name;
       user.image = userdata.image;
-      user.fbid = userdata.fbid;
+    //  user.fbid = userdata.fbid;
       user._id = authData.uid;
       UsersDbs.save(user, function(u) {
         $localStorage.setObject('user', u);

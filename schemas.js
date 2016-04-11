@@ -45,16 +45,16 @@
      },
      spots: Number,
      cost: Number,
-     passengerIds: [String]
+     passengers: [String]
    });
 
    var userSchema = new Schema({
      _id: String,
-     facebookId: String,
+    // facebookId: String,
      image: String,
      name: String,
      rides: [{
-       id: String,
+       id: ObjectId,
        origin: String,
        destination: String,
        date: Date,
@@ -64,7 +64,7 @@
 
    var requestSchema = new Schema({
      userId: String,
-     rideId: String,
+     rideId: ObjectId,
      message: String,
      passengerId: String
    });
