@@ -61,9 +61,17 @@
        driverId: String
      }]
    });
+
+   var requestSchema = new Schema({
+     userId: String,
+     rideId: String,
+     message: String,
+     passengerId: String
+   });
    var models = {
      Rides: mongoose.model('Rides', rideSchema),
-     Users: mongoose.model('Users', userSchema)
+     Users: mongoose.model('Users', userSchema),
+     Requests: mongoose.model('Requests', requestSchema)
    };
    return models;
  }

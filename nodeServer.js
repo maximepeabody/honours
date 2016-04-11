@@ -26,6 +26,32 @@ const PORT = 8080;
 
 // here we define the REST api //
 
+// posting a ride request
+app.post('/request', function(req, res) {
+    var request =  new models.Requests(req.body);
+    request.save(function(err, r) {
+      if(err) return err;
+      else res.send(r);
+    });
+});
+
+// getting a ride request, given a user id or ride id //
+app.get('/requests', function(req, res) {
+  var userid = req.query.userid;
+  var rideid = req.query.rideid;
+
+  if(rideid) {
+    models.Requests.find({rideId: rideid}, function(err, requests) {
+      if(err) return err;
+      res.send(requests);
+  }
+  else if(userid) {
+    models.Requests.find({userId: userid}, function(err, requests) {
+      if(err) return err;
+      res.send(requests);
+  }
+
+});
 // this posts a new ride to the server, or updates an existing ride if  //
 // an id is provided//
 app.post('/ride', function(req, res) {
