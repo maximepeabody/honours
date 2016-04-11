@@ -34,7 +34,7 @@
         </div>
 
         <ion-list>
-          <ion-item ng-repeat="ride in rides" ui-sref='menu.rideView({rideid: ride._id.$oid})'>
+          <ion-item ng-repeat="ride in rides" ui-sref='menu.rideView({rideid: ride._id})'>
             From {{ride.origin.name}} to {{ride.destination.name}} on {{ride.date }}, Driver: {{ride.driverName}}
           </ion-item>
           <ion-item ng-show="noRides" >

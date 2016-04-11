@@ -33,12 +33,15 @@ app.post('/ride', function(req, res) {
   var ride;
   if(req.body._id) {
   	models.Rides.findById(req.body._id, function(err, ride) { 
-		if(err) { res.send(err);}
+		if(err) { return err;}
 		else {
 			for(var elem in req.body) { 
 				ride[elem] = req.body[elem];
 			}
-			ride.save(function(err) { if(err) res.send(err); else res.send("saved");});
+			ride.save(function(err, r) { 
+				if(err) return err; 
+				res.send(r);
+7			});
 		}
 	});
  	
@@ -46,10 +49,10 @@ app.post('/ride', function(req, res) {
   else {
   ride =  new models.Rides(req.body);
   
-  ride.save(function(err){
+  ride.save(function(err, r){
 	if(err) console.log(err);
 	if(err) return err;
-	res.send("saved");
+	res.send(r);
 	console.log("saved");
 	// otherwise it's saved. //
   });
@@ -59,19 +62,24 @@ app.post('/ride', function(req, res) {
 
 // create a new user, or update an existing one //
 app.post('/user', function(req, res) {
-
+	console.log(req.body);	
+	if(req.body.nopopulate) {
+	console.log('not populating rides array');
 	models.Users.findById(req.body._id, function(err, user) {
 		  //create a new user //
 		  if(!user || err) { 
+			console.log('cannot find user');
 			console.log(err); 
+			console.log('creating new user')
 			user = new models.Users(req.body);
-			user.save(function(err) {
+			console.log(user);
+			user.save(function(err, u) {
 				if(err) {
 					console.log(err);
-					res.send(err);
+					return err;	
 				}
 				else {
-					res.send("saved");
+					res.send(u);
 				}
 			});
 		  }
@@ -80,17 +88,56 @@ app.post('/user', function(req, res) {
 		  for(var elem in req.body) { 
 				user[elem] = req.body[elem];
 		  }
-		  user.save(function(err) {
+		  user.save(function(err, u) {
 			  if(err) {
 				  console.log(err); 
-				  res.send(err);
+				  return err; 
 			  }
 			  else { 
-				res.send("saved");
+				res.send(u);
 			  }
 		  });
 		}
   });
+  } 
+  else {
+       	models.Users.findById(req.body._id).populate('rides').then(function(user) {
+		  //create a new user //
+		 console.log(user); 
+		 if(!user) {
+			console.log('cannot find user'); 
+			 
+			user = new models.Users(req.body);
+			console.log('creating new user');
+			console.log(user);
+			user.save(function(err, u) {
+				if(err) {
+					console.log(err);
+					return err;	
+				}
+				else {
+					res.send(u);
+				}
+			});
+		  }
+		  else {
+		  //otherwise we found a user, so update it//
+		  for(var elem in req.body) { 
+				user[elem] = req.body[elem];
+		  }
+		  user.save(function(err,u) {
+			  if(err) {
+				  console.log(err); 
+				  return err; 
+			  }
+			  else { 
+				res.send(u);
+			  }
+		  });
+		}
+  });
+
+ }
 });
 
 
@@ -102,7 +149,7 @@ app.get('/ride', function(req, res) {
   console.log(req.query);
   //if id is provided, find the ride by id //
   if(req.query._id) {
-  models.Rides.findById(req.query._id).then(function(ride) {
+  models.Rides.findById(req.query._id).populate('driver passengers').then(function(ride) {
 	  res.send(ride);
   });
   }
@@ -135,7 +182,7 @@ app.get('/ride', function(req, res) {
 		d2.setMinutes(59);
 		query.date = {$gte:d1, $lte: d2};
 	}
-	models.Rides.find(query, function(err, rides) {
+	models.Rides.find(query).populate('driver passengers').exec(function(err, rides) {
 		console.log(rides);
 
 		if(err){console.log(err); return err;}
@@ -180,6 +227,7 @@ app.get('/ride', function(req, res) {
 			}
 
 		}
+		
 		res.send(validRides);
 
   	});
@@ -215,13 +263,21 @@ app.get('/ride', function(req, res) {
   //req.query //
 });
 
+// custom query //
+app.get('/customRideQuery', function(req, res) {
+	console.log(req.query);
+	models.Rides.find(req.query).populate('driver passengers').exec(function(err, rides) {
+		if(err) return err;
+		res.send(rides);
+	});
+
+});
+
 // gets user based on user id //
 app.get('/user', function(req, res) {
-  models.Users.findById(req.query._id).then(function(user) {
-		console.log(user);
-	  res.send(user);
-  }, function(err) {
-		res.send(err);
+  models.Users.findById(req.query._id).populate('rides').exec(function(err, user) {
+		if(err) return err;
+		res.send(user);
 	});
 });
 
@@ -237,7 +293,7 @@ app.get('/queryRides', function(req, res) {
 	models.Rides.find(query).then(function(rides) {
 		res.send(rides);
 	}, function(err) {
-		res.send(err);
+		return err;
 	});
 });
 

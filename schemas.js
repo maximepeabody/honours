@@ -5,7 +5,7 @@
 
   var rideSchema = new Schema({
     driverName: String,
-    driverId: String,
+    driver: {type: String, ref: 'Users'},
     origin: {
       lat: Number,
       lng: Number,
@@ -44,7 +44,7 @@
       polyline: String,
     },
     spots: Number,
-    passengerIds: [String]
+    passengers: [{type: String, ref: 'Users'}]
   });
 
   var userSchema = new Schema({
@@ -52,13 +52,7 @@
     facebookId: String,
     image: String,
     name: String,
-    rides: [{
-      id: String,
-      origin: String,
-      destination: String,
-      date: Date,
-      driverId: String
-    }]
+    rides: [{type: Schema.Types.ObjectId, ref: 'Rides'}]
   });
 
   var models = {
