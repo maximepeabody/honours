@@ -141,18 +141,19 @@ AuthRequired: true
 
     })
     .state('menu.rideView', {
-          url: '/rideView/:rideid',
+          url: '/rideView',
           AuthRequired: true,
           views: {
             'menuContent':{
               templateUrl: 'templates/rideView.html',
               controller: 'RideViewCtrl',
-              resolve: {
+
+              /*resolve: {
                 ride: function($stateParams, UserDbs) {
                   console.log($stateParams.rideid);
                   return $stateParams.rideid;
                 }
-              }
+              }*/
             }
           }
         });
