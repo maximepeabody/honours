@@ -61,7 +61,6 @@
        driverId: String
      }]
    });
-
    var models = {
      Rides: mongoose.model('Rides', rideSchema),
      Users: mongoose.model('Users', userSchema)
