@@ -5,7 +5,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'ngResource', 'firebase', 'ngRoute'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'ngResource', 'firebase', 'ngRoute', 'ionic-ratings'])
 
 .constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
 
@@ -89,6 +89,18 @@ AuthRequired: true
 
 
         })
+        .state('menu.accountPublic', {
+            url: '/accountPublic',
+            AuthRequired: true,
+            views: {
+                'menuContent': {
+                    templateUrl: 'templates/accountPublic.html',
+                    controller: 'UserViewCtrl',
+                }
+            }
+
+
+        })
         .state('menu.postRide', {
             url: '/postRide',
             AuthRequired: true,
@@ -124,6 +136,7 @@ AuthRequired: true
 
 
     })
+
     .state('menu.rideView', {
           url: '/rideView',
           AuthRequired: true,
@@ -140,6 +153,16 @@ AuthRequired: true
               }*/
             }
           }
+        })
+      .state('menu.privateRideView', {
+              url: '/privateRideView',
+              AuthRequired: true,
+              views: {
+                'menuContent':{
+                  templateUrl: 'templates/privateRideView.html',
+                  controller: 'PrivateRideViewCtrl',
+                }
+              }
         });
 
     // if none of the above states are matched, use this as the fallback

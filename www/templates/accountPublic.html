@@ -7,18 +7,18 @@
     <div class="list card">
 
       <div class="item item-avatar">
-        <img src="{{user.image}}">
-        <h2>{{user.name}}</h2>
+        <img src="{{viewUser.image}}">
+        <h2>{{viewUser.name}}</h2>
         <p>more info?</p>
       </div>
 
       <div class="item item-body">
         <p>
-          User Description:
+          User Description: {{viewUser.description}}
         </p>
         <p>
           <a href="#" class="subdued">8/10 Rating</a>
-          <button ng-show="ride.driver !== user._id" class="button  button-block" ng-click = "rateUser(ride.driver)"> Rate User</button>
+          <button class="button  button-block" ng-click = "rateUser(viewUser)"> Rate User</button>
         </p>
       </div>
     </div>

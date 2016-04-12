@@ -6,6 +6,7 @@
    var rideSchema = new Schema({
      driverName: String,
      driverId: String,
+     driver: {type: String, ref: 'Users'},
      origin: {
        lat: Number,
        lng: Number,
@@ -45,7 +46,12 @@
      },
      spots: Number,
      cost: Number,
-     passengers: [String]
+     passengers: [{type:String, ref: 'Users'],
+     messages: [{
+       name: String,
+       message: String,
+       timestamp: Date
+     }]
    });
 
    var userSchema = new Schema({
@@ -53,27 +59,26 @@
     // facebookId: String,
      image: String,
      name: String,
-     rides: [{
-
-
-
-
-       type: Schema.Types.ObjectId,
-       ref: 'Rides' /*,
-
-       origin: String,
-       destination: String,
-       date: Date,
-       driverId: String*/
-     }]
+     rides: [{   type: Schema.Types.ObjectId,
+       ref: 'Rides'
+     }],
+     pastRides: [{ type: Schema.Types.ObjectId,
+     ref: 'Rides'}],
+     reviews: [{
+       userName: String,
+       rating: Number,
+       message: String
+     }],
+     rating: Number
    });
 
    var requestSchema = new Schema({
      userId: String,
-     rideId: Schema.Types.ObjectId,
+     ride: {type: Schema.Types.ObjectId, ref: 'Rides'}
      message: String,
      passengerId: String
    });
+
    var models = {
      Rides: mongoose.model('Rides', rideSchema),
      Users: mongoose.model('Users', userSchema),

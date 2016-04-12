@@ -36,7 +36,7 @@ app.post('/request', function(req, res) {
 });
 
 // getting a ride request, given a user id or ride id //
-app.get('/requests', function(req, res) {
+app.get('/request', function(req, res) {
   var userid = req.query.userid;
   var rideid = req.query.rideid;
 
@@ -268,7 +268,6 @@ app.get('/ride', function(req, res) {
 		'origin.lat':{$lt:Number(req.query.originlat) + 0.1, $gt:Number(req.query.originlat) - 0.1},
 		'destination.lng': {$lt: Number(req.query.destinationlng) + 0.1, $gt: Number(req.query.destinationlng) - 0.1},
 		'destination.lat': {$lt: Number(req.query.destinationlat) + 0.1, $gt: Number(req.query.destinationlat) - 0.1}
-
 	};
 
   	if(req.query.date) {
@@ -325,100 +324,6 @@ app.get('/queryRides', function(req, res) {
 	});
 });
 
-//gets list of rides based on ana advanced query //
-// advanced query includes bounds //
-// query is of the form :
-// origin.lat:
-// oring.lng :
-// destination.lat:
-// destination.long:
-// date:
-// boundNortheastLat :
-// boundnortheastlng:
-// boundsouthwestlat:
-// boundsouthwestlng:
-app.get('/advancedQueryRides', function(req, res) {
-	console.log(req.query);
-	var bounds = {
-		northeast: {
-			lat: req.query.boundNortheastLat,
-			lng: req.query.boundNortheastLng
-		},
-		southwest: {
-			lat:req.query.boundSouthwestLat,
-			lng: req.query.boundSouthwestLng
-		}
-	};
-	var origin = {
-		lat: req.query.originlat,
-		lng:  req.query.originlng
-	};
-	var destination = {
-		lat: req.query.destinationlat,
-		lng: req.query.destinationlng
-	};
-	var validRides = [];
-	// for each ride in the bounding box, see if the origin/destination lies on the path//
-	var query = {
-		'origin.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
-		'origin.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng},
-		'destination.lat': {$lt: bounds.northeast.lat, $gt: bounds.southwest.lat},
-		'destination.lng': {$lt: bounds.northeast.lng, $gt: bounds.southwest.lng}
-	};
-	models.Rides.find({}, function(err, rides) {
-		console.log(rides);
-
-		if(err){console.log(err); return err;}
-
-		//accuracy of pointInLine search, in meters //
-		var accuracy = 10000;
-
-		for(var f = 0; f<rides.length; f++) {
-			var ride = rides[f];
-			// bool value to see if origin/destination are on the path //
-			var originOnPath = false;
-			var destinationOnPath = false;
-			console.log(f);
-
-
-
-				//decode the points from the polyline //
-				var points = polyline.decode(ride.route.polyline);
-				if(points.length<2) break;
-				for(var i = 0; i<points.length-1; i++ ) {
-					var p1 = {lat: points[i][0], lng: points[i][1]};
-					var p2 = {lat: points[i+1][0], lng: points[i+1][1]};
-
-					if(!originOnPath && geolib.isPointNearLine(origin, p1, p2, accuracy)) { console.log("o on path");
-						originOnPath = true;
-					}
-					if(originOnPath) {
-						if(geolib.isPointNearLine(destination, p1, p2, accuracy)){
-							destinationOnPath = true;
-							console.log("d on path");
-						}
-					}
-				}
-
-			if(originOnPath && destinationOnPath) {
-				console.log("valid ride");
-				console.log(ride);
-				validRides.push(ride);
-			}
-
-		}
-		res.send(validRides);
-	});
-	console.log(validRides);
-
-
-});
-
-// Delete methods:
-// -deleteRide -by id
-app.delete('/ride', function(req, res) {
-
-});
 
 app.listen(PORT, function() {
   console.log('Example app listening on port' + PORT + '!');

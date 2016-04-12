@@ -27,9 +27,18 @@
       <div>
         <h2> Chat: </h2>
         <ion-list>
-            <ion-item ng-repeat="message in ride.messages"> <b> {{message.name}} : </b> {{message.content}}</ion-item>
+            <div> <h1> Conversation: </h1> </div>
+            <ion-item ng-repeat="message in ride.messages"> <b> {{message.name}} : </b> {{message.message}}</ion-item>
+            <div class="item item-input-inset">
+            <label class="item-input-wrapper">
+              <input type="text" ng-model="message.body" placeholder="message">
+            </label>
+            <button class="button button-small" ng-click="submitMessage(message.body)">
+              Submit
+            </button>
+          </div>
         </ion-list>
-        <input> </input> <button> Submit </button>  
+
       </div>
     </ion-content>
 </ion-view>
