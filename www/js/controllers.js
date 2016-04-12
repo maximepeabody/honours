@@ -113,7 +113,7 @@ angular.module('starter.controllers', [])
         userId: driverid,
         ride: rideid,
         message: "Hi, I would like to be a passenger for your rideshare!",
-        passengerId: userid
+        passenger: userid
       };
 
       // sends the request to the database //
@@ -399,7 +399,7 @@ angular.module('starter.controllers', [])
     //add passengerid to ride.passengers
     // add rideid to passengerid user
     var ride = RidesDbs.get({
-      _id: request.rideId
+      _id: request.ride._id
     }, function() {
       ride.passengers.push(request.passengerId);
     });
@@ -409,9 +409,12 @@ angular.module('starter.controllers', [])
       passenger.rides.push(request.ride);
     });
     // delete this request //
+    RequestsDbs.delete({id: request._id}, function(resp){
+    });
   };
   $scope.declineRequest = function(request) {
-
+    RequestsDbs.delete({id: request._id}, function(resp){
+    });
   };
 
   //for clicking on a ride //

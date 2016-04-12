@@ -15,8 +15,8 @@
             {{request.message}}
             <br>
             For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{request.ride.date}}
-            <button class="button  button-block "> Accept </button>
-            <button class="button  button-block" > Decline </button>
+            <button class="button  button-block " ng-click="acceptRequest(request)"> Accept </button>
+            <button class="button  button-block" ng-click = "declineRequest(request)"> Decline </button>
           </ion-item>
       </ion-list>
     </ion-content>

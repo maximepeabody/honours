@@ -48,12 +48,16 @@ app.get('/request', function(req, res) {
   });
 }
   else if(userid) {
-    models.Requests.find({userId: userid}).populate('ride passenger').then function( requests) {
+    models.Requests.find({userId: userid}).populate('ride passenger').then(function( requests) {
       console.log("requests found", requests);
       res.send(requests);
   });
 }
 });
+
+app.delete('/request', function(req, res){
+  models.Requests.remove({_id: req.body.id}, function(r){res.send(r)});
+})
 // this posts a new ride to the server, or updates an existing ride if  //
 // an id is provided//
 app.post('/ride', function(req, res) {
