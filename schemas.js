@@ -46,7 +46,7 @@
      },
      spots: Number,
      cost: Number,
-     passengers: [{type:String, ref: 'Users'],
+     passengers: [{type:String, ref: 'Users'}],
      messages: [{
        name: String,
        message: String,
@@ -59,6 +59,7 @@
     // facebookId: String,
      image: String,
      name: String,
+     description: String,
      rides: [{   type: Schema.Types.ObjectId,
        ref: 'Rides'
      }],
@@ -74,9 +75,9 @@
 
    var requestSchema = new Schema({
      userId: String,
-     ride: {type: Schema.Types.ObjectId, ref: 'Rides'}
+     ride: {type: Schema.Types.ObjectId, ref: 'Rides'},
      message: String,
-     passengerId: String
+     passenger: {type: String, ref: 'Users'}
    });
 
    var models = {

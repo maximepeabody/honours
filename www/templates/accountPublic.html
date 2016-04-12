@@ -17,9 +17,16 @@
           User Description: {{viewUser.description}}
         </p>
         <p>
-          <a href="#" class="subdued">8/10 Rating</a>
-          <button class="button  button-block" ng-click = "rateUser(viewUser)"> Rate User</button>
+          <span class="subdued" ng-show="user.reviews.length > 1"> <b>Rating:</b> {{user.rating/user.reviews.length}}/5, </span>
         </p>
+      </div>
+    </div>
+    <div class = "list card">
+      <div class = "item">
+        <h2> Reviews: </h2>
+      </div>
+      <div class = "item item-body" ng-repeat="review in viewUser.reviews">
+        <b> {{review.userName}} </b> : {{review.message}}
       </div>
     </div>
     </ion-content>

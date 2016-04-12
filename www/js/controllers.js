@@ -367,19 +367,26 @@ angular.module('starter.controllers', [])
 .controller('MyRidesCtrl', function($scope, $state, $ionicPopup, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, RequestsDbs, CurrentUser, $localStorage, DateFormater) {
   $scope.dateFormater = DateFormater;
   $scope.authData = Auth.$getAuth();
+  $scope.review = {};
   $scope.user = UsersDbs.get({
     _id: $scope.authData.uid
   }, function() {
     console.log($scope.user)
     checkForPastRides();
   });
+
+  $scope.requests = RequestsDbs.get({userid: $scope.user._id}, function(){ console.log($scope.requests)});
   // check if any rides are now in the past // ask for review/ rating//
   var checkForPastRides = function() {
     var currentDate = new Date();
     for (var i = 0; i < $scope.user.rides.length; i++) {
       //if date is in the past, ask for review //
-      if ($scope.user.rides[i].date < currentDate) {
-        $scope.showPopup($scope.user.rides[i].driverId);
+      if ( new Date($scope.user.rides[i].date) < currentDate) {
+        $scope.user.pastRides.push($scope.user.rides[i]._id);
+        var driverId = $scope.user.rides[i].driverId;
+        $scope.user.rides.splice(i,1);
+        UsersDbs.save($scope.user);
+        $scope.showPopup(driverId);
       }
       // then remove it from the ride list
     }
@@ -437,18 +444,19 @@ angular.module('starter.controllers', [])
 
   $scope.ratingsCallback = function(rating) {
     $scope.review.rating = rating;
+    console.log(rating);
   };
 
   $scope.showPopup = function(userId) {
     $scope.data = {};
     $scope.reviewe = UsersDbs.get({
       _id: userId
-    });
+    }, function(user){
 
     // An elaborate, custom popup
     var reviewPopup = $ionicPopup.show({
       template: '<input type="text" ng-model="data.review"> <ionic-ratings ratingsobj="ratingsObject"></ionic-ratings>',
-      title: 'Please Give a review to ' + reviewe.name,
+      title: 'Please Give a review to ' + $scope.reviewe.name,
       subTitle: '',
       scope: $scope,
       buttons: [{
@@ -461,15 +469,25 @@ angular.module('starter.controllers', [])
         }
       }]
     });
-
     reviewPopup.then(function(res) {
       console.log('Tapped!', res);
-      console.log('rating', rating);
+      console.log('rating', $scope.review.rating);
+      $scope.reviewe.reviews.push( {
+        userName: $scope.user.name,
+        rating: $scope.review.rating,
+        message: res
+      });
+      $scope.reviewe.rating += $scope.review.rating;
+      console.log("reviewe", $scope.reviewe);
+      UsersDbs.save($scope.reviewe);
+    });
     });
 
+
+    /*
     $timeout(function() {
       reviewPopup.close(); //close the popup after 3 seconds for some reason
-    }, 3000);
+    }, 3000); */
   };
 
 })

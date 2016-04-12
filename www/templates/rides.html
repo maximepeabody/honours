@@ -6,6 +6,18 @@
         <ion-list>
             <ion-item class="item-divider" >Upcoming Rides</ion-item>
             <ion-item ng-repeat="ride in user.rides" ng-click="goTo(ride)">{{ride.origin.name}} to {{ride.destination.name}}, on {{dateFormater.formatToString(ride.date)}}</ion-item>
-        </ion-list>
+
+      </ion-list>
+      <ion-list>
+          <ion-item class="item-divider" >Ride Requests</ion-item>
+          <ion-item ng-repeat="request in requests" >
+            <b>{{request.passenger.name }}:</b>
+            {{request.message}}
+            <br>
+            For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{request.ride.date}}
+            <button class="button  button-block "> Accept </button>
+            <button class="button  button-block" > Decline </button>
+          </ion-item>
+      </ion-list>
     </ion-content>
 </ion-view>

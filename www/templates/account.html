@@ -14,15 +14,21 @@
 
       <div class="item item-body">
         <p>
-          User Description:
+          User Description: {{user.description}}
         </p>
+        <button class="button  button-block ">Edit Description </button> 
         <p>
-          <a href="#" class="subdued">8/10 Rating</a>
-          <a href="#" class="subdued">3 Reviews</a>
+          <span class="subdued" ng-show="user.reviews.length > 1"> <b>Rating:</b> {{user.rating/user.reviews.length}}/5, </span>
         </p>
-
       </div>
-
+    </div>
+    <div class = "list card">
+      <div class = "item">
+        <h2> Reviews: </h2>
+      </div>
+      <div class = "item item-body" ng-repeat="review in user.reviews">
+        <b> {{review.userName}} </b> : {{review.message}}
+      </div>
     </div>
     </ion-content>
 </ion-view>

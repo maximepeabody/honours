@@ -40,6 +40,8 @@ app.get('/request', function(req, res) {
   var userid = req.query.userid;
   var rideid = req.query.rideid;
 
+  console.log("query: ", req.query);
+
   if(rideid) {
     models.Requests.find({rideId: rideid}, function(err, requests) {
       if(err) return err;
@@ -49,6 +51,7 @@ app.get('/request', function(req, res) {
   else if(userid) {
     models.Requests.find({userId: userid}, function(err, requests) {
       if(err) return err;
+      console.log("requests found", requests);
       res.send(requests);
   });
 }
