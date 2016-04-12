@@ -373,9 +373,9 @@ angular.module('starter.controllers', [])
   }, function() {
     console.log($scope.user)
     checkForPastRides();
+    $scope.requests = RequestsDbs.query({userid: $scope.user._id}, function(){ console.log($scope.requests)});
   });
 
-  $scope.requests = RequestsDbs.get({userid: $scope.user._id}, function(){ console.log($scope.requests)});
   // check if any rides are now in the past // ask for review/ rating//
   var checkForPastRides = function() {
     var currentDate = new Date();

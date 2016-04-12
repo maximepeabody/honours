@@ -43,14 +43,12 @@ app.get('/request', function(req, res) {
   console.log("query: ", req.query);
 
   if(rideid) {
-    models.Requests.find({rideId: rideid}, function(err, requests) {
-      if(err) return err;
+    models.Requests.find({rideId: rideid}).populate('ride passenger').then(function( requests) {
       res.send(requests);
   });
 }
   else if(userid) {
-    models.Requests.find({userId: userid}, function(err, requests) {
-      if(err) return err;
+    models.Requests.find({userId: userid}).populate('ride passenger').then function( requests) {
       console.log("requests found", requests);
       res.send(requests);
   });
