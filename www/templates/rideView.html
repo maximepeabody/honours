@@ -12,20 +12,24 @@
         </div>
 
         <div class="item item-body">
-          <p>On:  {{dateFormater.formatToString(ride.date)}}</p>
-          <p>Driver: {{ride.driverName}} </p>
-          <p>Driver Rating: {{ride.driver.rating}} </p>
-          <p>Ride Info: {{ride.description}}</p>
-          <p>
+          <ion-item class= "item-divider">
+            Description:
+          </ion-item>
+          <ion-item>
+            On: {{dateFormater.formatToString(ride.date)}}
+          </ion-item>
+          <ion-item>
             {{ride.description}}
-          </p>
-          <div ng-show = "ride.driver === user._id">
-            <p> Passengers: </p>
-            <p ng-repeat="passenger in ride.passengers" ng-click="viewProfile(passenger.id)">
-              <img src="{{passenger.image}}">
-              <p> {{passenger.name}} </p>
-            </p>
-        </div>
+          </ion-item>
+          <ion-item class="item-divider">
+            Driver :
+          </ion-item>
+          <ion-item class="item-avatar" ng-click="viewProfile(ride.driver)">
+            <img src="{{ride.driver.image}}">
+           <p>  {{ride.driver.name}} </p>
+           <p > Rating: {{ (ride.driver.rating / ride.driver.reviews.length).toFixed(1)}} / 5</p>
+          </ion-item>
+
           <button ng-show="ride.driver !== user._id" class="button  button-block" ng-click = "requestRide(ride)"> Request Ride </button>
         </div>
       </div>

@@ -37,7 +37,7 @@
           <ion-item ng-repeat="ride in rides" ng-click="goTo(ride)">
             <img src="{{ride.driver.image}}">
 
-            From {{ride.origin.name}} to {{ride.destination.name}} on {{dateFormater.formatToString(ride.date)}}, Driver: {{ride.driverName}}
+            From <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b> on <b>{{dateFormater.formatToString(ride.date)}}</b>, Driver: {{ride.driverName}}, <b>Rating:</b> {{(ride.driver.rating/ride.driver.reviews.length).toFixed(1)}}/5
           </ion-item>
           <ion-item ng-show="noRides" >
             Sorry, there are no rides for this search...

@@ -16,9 +16,9 @@
         <p>
           User Description: {{user.description}}
         </p>
-        <button class="button  button-block ">Edit Description </button> 
+        <button class="button  button-block" ng-click = "editDescription(user)">Edit Description </button>
         <p>
-          <span class="subdued" ng-show="user.reviews.length > 1"> <b>Rating:</b> {{user.rating/user.reviews.length}}/5, </span>
+          <span class="subdued" ng-show="user.reviews.length > 1"> <b>Rating:</b> {{(user.rating/user.reviews.length).toFixed(1)}}/5, </span>
         </p>
       </div>
     </div>

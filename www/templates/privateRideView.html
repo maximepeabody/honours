@@ -1,44 +1,66 @@
 <ion-view title="RideView">
   <ion-nav-buttons side="left">
-      <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+    <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
   <ion-nav-back-button>
- </ion-nav-back-button>
-    <ion-content overflow-scroll="true" padding="true" class="has-header">
-      <div class="list card">
+  </ion-nav-back-button>
+  <ion-content overflow-scroll="true" padding="true" class="has-header">
+    <ion-refresher
+    pulling-text="Pull to refresh..."
+    on-refresh="doRefresh()">
+  </ion-refresher>
+    <div class="list card">
 
-        <div class="item item-avatar">
-          <img src="{{ride.driver.image}}">
-          <h2> <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b></h2>
-        </div>
+      <div class="item item-avatar">
+        <h2> <b>{{ride.origin.name}}</b> to <b>{{ride.destination.name}}</b></h2>
+      </div>
 
-        <div class="item item-body">
-          <p>On:  {{ride.date}}</p>
-          <p>Description: {{ride.description}}</p>
+      <div class="item item-body">
+        <ion-list>
 
-            <p> Passengers: </p>
-            <p ng-repeat="passenger in ride.passengers" ng-click="viewProfile(passenger.id)">
+          <ion-item class= "item-divider">
+            Description:
+          </ion-item>
+          <ion-item>
+            On: {{DateFormater.formatToString(ride.date)}}
+          </ion-item>
+          <ion-item>
+            {{ride.description}}
+          </ion-item>
+          <ion-item class="item-divider">
+            Driver :
+          </ion-item>
+          <ion-item class="item-avatar" ng-click="viewProfile(ride.driver)">
+            <img src="{{ride.driver.image}}">
+           <p>  {{ride.driver.name}} </p>
+           <p ng-show="ride.driver.reviews>1"> Rating: {{ride.driver.rating / ride.driver.reviews.length}}</p>
+          </ion-item>
+          <ion-item class= "item-divider">
+            Passengers:
+          </ion-item>
+          <ion-item class="item-avatar" ng-repeat="passenger in ride.passengers" ng-click="viewProfile(passenger)">
               <img src="{{passenger.image}}">
               <p> {{passenger.name}} </p>
-            </p>
+          </ion-item>
+          <ion-list>
+      </div>
+
+    </div>
+    <div>
+      <ion-list>
+        <ion-item>
+          <h2> Conversation: </h2> </ion-item>
+        <ion-item ng-repeat="message in ride.messages"> <b> {{message.name}} : </b> {{message.message}}</ion-item>
+        <div class="item item-input-inset">
+          <label class="item-input-wrapper">
+            <input type="text" ng-model="message.body" placeholder="message">
+          </label>
+          <button class="button button-small" ng-click="submitMessage(message.body)">
+            Submit
+          </button>
         </div>
+      </ion-list>
 
-      </div>
-      <div>
-        <h2> Chat: </h2>
-        <ion-list>
-            <div> <h1> Conversation: </h1> </div>
-            <ion-item ng-repeat="message in ride.messages"> <b> {{message.name}} : </b> {{message.message}}</ion-item>
-            <div class="item item-input-inset">
-            <label class="item-input-wrapper">
-              <input type="text" ng-model="message.body" placeholder="message">
-            </label>
-            <button class="button button-small" ng-click="submitMessage(message.body)">
-              Submit
-            </button>
-          </div>
-        </ion-list>
-
-      </div>
-    </ion-content>
+    </div>
+  </ion-content>
 </ion-view>

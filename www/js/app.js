@@ -69,14 +69,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
     })
 
-    .state('menu.chat', {
-            url: '/chat',
-            templateUrl: 'templates/chat.html',
-            controller: 'ChatCtrl',
-AuthRequired: true
-
-
-        })
         .state('menu.account', {
             url: '/account',
             AuthRequired: true,
@@ -114,6 +106,7 @@ AuthRequired: true
         })
 
     .state('menu.rides', {
+        cache: false,
         url: '/rides',
         AuthRequired: true,
         views: {
@@ -138,6 +131,7 @@ AuthRequired: true
     })
 
     .state('menu.rideView', {
+        cache: false,
           url: '/rideView',
           AuthRequired: true,
           views: {
@@ -155,6 +149,7 @@ AuthRequired: true
           }
         })
       .state('menu.privateRideView', {
+              cache: false,
               url: '/privateRideView',
               AuthRequired: true,
               views: {

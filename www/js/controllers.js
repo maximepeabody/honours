@@ -6,7 +6,7 @@ angular.module('starter.controllers', [])
 //queries based on 'origin' and 'destination' coordinates, + 'date'.
 //can add option destination query destination anywhere
 
-.controller('SearchCtrl', function($scope, $localStorage, Auth, $resource, $ionicLoading, RidesDbs, $state, DateFormater) {
+.controller('SearchCtrl', function($scope, $localStorage, Auth, $resource, $ionicHistory, $ionicLoading, RidesDbs, $state, DateFormater) {
   //get user data //
   $scope.authData = Auth.$getAuth();
   $scope.dateFormater = DateFormater;
@@ -87,20 +87,25 @@ angular.module('starter.controllers', [])
     $scope.viewUser = $localStorage.getObject('userViewObject');
 
   })
-  .controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, RequestsDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
+  .controller('RideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, $ionicHistory, RequestsDbs, $state, UsersDbs, $ionicPopup, $ionicLoading, $localStorage, DateFormater) {
     $scope.dateFormater = DateFormater;
     $scope.authData = Auth.$getAuth();
     $scope.user = UsersDbs.get({
       _id: $scope.authData.uid
     }, function() {
-      console.log($scope.user)
+      console.log($scope.user);
     });
 
     $scope.ride = $localStorage.getObject('viewObject');
+    $scope.ride = RidesDbs.get({
+      _id: $scope.ride._id
+    }, function() {
+      console.log($scope.ride);
+    });
 
-    $scope.viewUser = function(user) {
+    $scope.viewProfile = function(user) {
       $localStorage.setObject('userViewObject', user);
-      $state.go('menu.userView');
+      $state.go('menu.accountPublic');
     };
 
     //send a request to the driver
@@ -120,25 +125,60 @@ angular.module('starter.controllers', [])
       RequestsDbs.save(req, function(response) {
         console.log(response);
       });
+      $scope.showAlert();
+    };
 
+    $scope.showAlert = function() {
+      var alertPopup = $ionicPopup.alert({
+        title: 'Confirmed',
+      });
+
+      //go to my rides page //
+      alertPopup.then(function(res) {
+        //console.log('reload here?');
+        $ionicHistory.clearCache();
+        $ionicHistory.nextViewOptions({
+          disableBack: true
+        });
+        $state.go('menu.rides', {}, {
+          reload: true
+        });
+      });
     };
   })
 
-.controller('PrivateRideViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
+.controller('PrivateRideViewCtrl', function($scope, $timeout, Auth, $state, RideViewObject, $ionicLoading, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
     $scope.dateFormater = DateFormater;
     $scope.authData = Auth.$getAuth();
+    $scope.ride = $localStorage.getObject('viewObject');
+    $scope.DateFormater = DateFormater;
     $scope.message = {};
+    $ionicLoading.show({
+      template: 'Loading...'
+    });
+
     $scope.user = UsersDbs.get({
       _id: $scope.authData.uid
     }, function() {
-      console.log($scope.user)
+      console.log($scope.user);
     });
 
-    $scope.ride = $localStorage.getObject('viewObject');
 
-    $scope.viewUser = function(user) {
-      $localStorage.setObject('menu.userViewObject', user);
-      $state.go('userView');
+    $scope.ride = RidesDbs.get({
+      _id: $scope.ride._id
+    }, function() {
+      console.log($scope.ride);
+      $ionicLoading.hide();
+    });
+
+    $scope.doRefresh = function() {
+      // here refresh data code
+      $scope.$broadcast('scroll.refreshComplete');
+      $scope.$apply()
+    };
+    $scope.viewProfile = function(user) {
+      $localStorage.setObject('userViewObject', user);
+      $state.go('menu.accountPublic');
     };
 
     $scope.submitMessage = function(messageString) {
@@ -147,6 +187,8 @@ angular.module('starter.controllers', [])
         message: messageString,
         timestamp: new Date()
       });
+      $scope.message.body = "";
+      RidesDbs.save($scope.ride);
       // need to reload after?
       // or use firebase instaed?
       //$state.go($state.current, {}, {reload: true});
@@ -223,6 +265,7 @@ angular.module('starter.controllers', [])
           console.log($scope.user)
           ride.driverId = $scope.authData.uid;
           ride.driverName = $scope.user.name;
+          ride.driver = $scope.authData.uid;
 
           RidesDbs.save(ride, function(response) {
             console.log(response);
@@ -364,16 +407,21 @@ angular.module('starter.controllers', [])
 })
 
 //
-.controller('MyRidesCtrl', function($scope, $state, $ionicPopup, $firebaseArray, RideViewObject, Auth, RidesDbs, UsersDbs, RequestsDbs, CurrentUser, $localStorage, DateFormater) {
+.controller('MyRidesCtrl', function($scope, $state, $ionicPopup, $firebaseArray, $ionicHistory, RideViewObject, Auth, RidesDbs, UsersDbs, RequestsDbs, CurrentUser, $localStorage, DateFormater) {
   $scope.dateFormater = DateFormater;
   $scope.authData = Auth.$getAuth();
   $scope.review = {};
+  $scope.review.rating = 3;
   $scope.user = UsersDbs.get({
     _id: $scope.authData.uid
   }, function() {
     console.log($scope.user)
     checkForPastRides();
-    $scope.requests = RequestsDbs.query({userid: $scope.user._id}, function(){ console.log($scope.requests)});
+    $scope.requests = RequestsDbs.query({
+      userid: $scope.user._id
+    }, function() {
+      console.log($scope.requests)
+    });
   });
 
   // check if any rides are now in the past // ask for review/ rating//
@@ -381,19 +429,13 @@ angular.module('starter.controllers', [])
     var currentDate = new Date();
     for (var i = 0; i < $scope.user.rides.length; i++) {
       //if date is in the past, ask for review //
-      if ( new Date($scope.user.rides[i].date) < currentDate) {
+      if (new Date($scope.user.rides[i].date) < currentDate) {
         $scope.user.pastRides.push($scope.user.rides[i]._id);
-        var driverId = $scope.user.rides[i].driverId;
-        $scope.user.rides.splice(i,1);
-        UsersDbs.save($scope.user);
-        $scope.showPopup(driverId);
+        $scope.showPopup(i);
       }
       // then remove it from the ride list
     }
   };
-  $scope.requests = RequestsDbs.get({
-    userId: $scope.user._id
-  });
 
   $scope.acceptRequest = function(request) {
     //add passengerid to ride.passengers
@@ -401,26 +443,30 @@ angular.module('starter.controllers', [])
     var ride = RidesDbs.get({
       _id: request.ride._id
     }, function() {
-      ride.passengers.push(request.passengerId);
+      ride.passengers.push(request.passenger._id);
+      RidesDbs.save(ride);
     });
-    var passenger = UsersDbs.get({
-      _id: request.passengerId
-    }, function() {
-      passenger.rides.push(request.ride);
-    });
+
+    request.passenger.rides.push(request.ride._id);
+    UsersDbs.save(request.passenger);
+
     // delete this request //
-    RequestsDbs.delete({id: request._id}, function(resp){
-    });
+    RequestsDbs.delete({
+      _id: request._id
+    }, function(resp) {});
+    $scope.showAlert();
   };
   $scope.declineRequest = function(request) {
-    RequestsDbs.delete({id: request._id}, function(resp){
-    });
+    RequestsDbs.delete({
+      _id: request._id
+    }, function(resp) {});
+    $scope.showAlert();
   };
 
   //for clicking on a ride //
   $scope.goTo = function(ride) {
     $localStorage.setObject('viewObject', ride);
-    $state.go('menu.rideView');
+    $state.go('menu.privateRideView');
   };
 
   $scope.upcoming = function(item) {
@@ -433,10 +479,7 @@ angular.module('starter.controllers', [])
   };
 
   $scope.ratingsObject = {
-    iconOn: 'ion-ios-star', //Optional
-    //    iconOff: 'ion-ios-star-outline',   //Optional
-    //    iconOnColor: 'rgb(200, 200, 100)',  //Optional
-    //    iconOffColor:  'rgb(200, 100, 100)',    //Optional
+    iconOn: 'ion-ios-star',
     rating: 2, //Optional
     minRating: 1, //Optional
     readOnly: false, //Optional
@@ -450,47 +493,62 @@ angular.module('starter.controllers', [])
     console.log(rating);
   };
 
-  $scope.showPopup = function(userId) {
+  $scope.showPopup = function(rideIndex) {
     $scope.data = {};
     $scope.reviewe = UsersDbs.get({
-      _id: userId
-    }, function(user){
+      _id: $scope.user.rides[rideIndex].driverId
+    }, function(user) {
 
-    // An elaborate, custom popup
-    var reviewPopup = $ionicPopup.show({
-      template: '<input type="text" ng-model="data.review"> <ionic-ratings ratingsobj="ratingsObject"></ionic-ratings>',
-      title: 'Please Give a review to ' + $scope.reviewe.name,
-      subTitle: '',
-      scope: $scope,
-      buttons: [{
-        text: 'Cancel'
-      }, {
-        text: '<b>Submit</b>',
-        type: 'button-positive',
-        onTap: function(e) {
-          return $scope.data.review;
-        }
-      }]
-    });
-    reviewPopup.then(function(res) {
-      console.log('Tapped!', res);
-      console.log('rating', $scope.review.rating);
-      $scope.reviewe.reviews.push( {
-        userName: $scope.user.name,
-        rating: $scope.review.rating,
-        message: res
+      // An elaborate, custom popup
+      var reviewPopup = $ionicPopup.show({
+        template: '<textarea ng-model="data.review"> </textarea><ionic-ratings ratingsobj="ratingsObject"></ionic-ratings>',
+        title: 'Please Give a review to ' + $scope.reviewe.name,
+        subTitle: 'For the ride from ' + $scope.user.rides[rideIndex].origin.name + ' to ' +
+          $scope.user.rides[rideIndex].destination.name + ' on ' + DateFormater.formatToString($scope.user.rides[rideIndex].date),
+        scope: $scope,
+        buttons: [{
+          text: '<b>Submit</b>',
+          type: 'button-positive',
+          onTap: function(e) {
+            return $scope.data.review;
+          }
+        }]
       });
-      $scope.reviewe.rating += $scope.review.rating;
-      console.log("reviewe", $scope.reviewe);
-      UsersDbs.save($scope.reviewe);
+      reviewPopup.then(function(res) {
+        console.log('Tapped!', res);
+        console.log('rating', $scope.review.rating);
+        $scope.reviewe.reviews.push({
+          userName: $scope.user.name,
+          rating: $scope.review.rating,
+          message: res
+        });
+        if(!$scope.reviewe.rating ){
+          $scope.reviewe.rating = $scope.review.rating;
+        }
+        else {
+        $scope.reviewe.rating += $scope.review.rating;
+      }
+        console.log("reviewe", $scope.reviewe);
+        UsersDbs.save($scope.reviewe);
+
+        $scope.user.rides.splice(rideIndex, 1);
+        UsersDbs.save($scope.user);
+      });
     });
+  };
+
+  $scope.showAlert = function() {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Confirmed'
     });
 
-
-    /*
-    $timeout(function() {
-      reviewPopup.close(); //close the popup after 3 seconds for some reason
-    }, 3000); */
+    alertPopup.then(function(res) {
+      console.log('reload page here?');
+      $ionicHistory.clearCache();
+      $state.go($state.current, {}, {
+        reload: true
+      });
+    });
   };
 
 })
@@ -498,16 +556,39 @@ angular.module('starter.controllers', [])
 
 
 // controls the account view
-.controller('AccountCtrl', function($scope, Auth, UsersDbs) {
+.controller('AccountCtrl', function($scope, Auth, UsersDbs, $ionicPopup) {
   $scope.authData = Auth.$getAuth();
   $scope.user = UsersDbs.get({
     _id: $scope.authData.uid
   });
 
+  $scope.input = {};
+  $scope.input.description = $scope.user.description;
+
   $scope.edit = false;
 
-  $scope.editDescription = function(description) {
-    $scope.user.description = description;
-    UsersDbs.save($scope.user);
+  $scope.editDescription = function(user) {
+    // An elaborate, custom popup
+    var descriptionPopup = $ionicPopup.show({
+      template: '<textarea ng-model="user.description"> </textarea>',
+      title: 'Edit your description',
+      subTitle: '',
+      scope: $scope,
+      buttons: [{
+        text: 'Cancel'
+      }, {
+        text: '<b>Save</b>',
+        type: 'button-positive',
+        onTap: function(e) {
+          return $scope.user.description;
+        }
+      }]
+    });
+
+    descriptionPopup.then(function(res) {
+      console.log(res);
+      //$scope.user.description = res;
+      UsersDbs.save($scope.user);
+    });
   };
 });
