@@ -431,13 +431,12 @@ angular.module('starter.controllers', [])
       //if date is in the past, ask for review //
       if (new Date($scope.user.rides[i].date) < currentDate) {
         $scope.user.pastRides.push($scope.user.rides[i]._id);
-        if($scope.user.rides[i].driverId !== $scope.user._id) {
+        if ($scope.user.rides[i].driverId !== $scope.user._id) {
           $scope.rateDriverPopup(i);
-        }
-        else {
+        } else {
           // rate the passengers //
-          for(var f = 0; f < $scope.user.rides[i].passengers.length; f++) {
-            $scope.ratePassengerPopup($scope.user.rides[i].passengers[f], $scope.user.rides[i]);
+          for (var f = 0; f < $scope.user.rides[i].passengers.length; f++) {
+            $scope.ratePassengerPopup($scope.user.rides[i].passengers[f]._id, $scope.user.rides[i]._id);
           }
           $scope.user.rides.splice(i, 1);
           UsersDbs.save($scope.user);
@@ -532,12 +531,11 @@ angular.module('starter.controllers', [])
           rating: $scope.review.rating,
           message: res
         });
-        if(!$scope.reviewe.rating ){
+        if (!$scope.reviewe.rating) {
           $scope.reviewe.rating = $scope.review.rating;
+        } else {
+          $scope.reviewe.rating += $scope.review.rating;
         }
-        else {
-        $scope.reviewe.rating += $scope.review.rating;
-      }
         console.log("reviewe", $scope.reviewe);
         UsersDbs.save($scope.reviewe);
 
@@ -547,43 +545,49 @@ angular.module('starter.controllers', [])
     });
   };
 
-  $scope.ratePassengerPopup = function(passenger, ride) {
+  $scope.ratePassengerPopup = function(passengerId, rideId) {
     $scope.data = {};
-    $scope.reviewe = passenger;
-
-      // An elaborate, custom popup
-      var reviewPopup = $ionicPopup.show({
-        template: '<textarea ng-model="data.review"> </textarea><ionic-ratings ratingsobj="ratingsObject"></ionic-ratings>',
-        title: 'Please Give a review to ' + $scope.reviewe.name,
-        subTitle: 'For the ride from ' + ride.origin.name + ' to ' +
-          ride.destination.name + ' on ' + DateFormater.formatToString(ride.date),
-        scope: $scope,
-        buttons: [{
-          text: '<b>Submit</b>',
-          type: 'button-positive',
-          onTap: function(e) {
-            return $scope.data.review;
-          }
-        }]
-      });
-
-      reviewPopup.then(function(res) {
-        console.log('Tapped!', res);
-        console.log('rating', $scope.review.rating);
-        $scope.reviewe.reviews.push({
-          userName: $scope.user.name,
-          rating: $scope.review.rating,
-          message: res
+    var ride = {};
+    $scope.reviewe = UsersDbs.get({
+      _id: passengerId
+    }, function() {
+      ride = RidesDbs.get({
+        _id: rideId
+      }, function() {
+        // An elaborate, custom popup
+        var reviewPopup = $ionicPopup.show({
+          template: '<textarea ng-model="data.review"> </textarea><ionic-ratings ratingsobj="ratingsObject"></ionic-ratings>',
+          title: 'Please Give a review to ' + $scope.reviewe.name,
+          subTitle: 'For the ride from ' + ride.origin.name + ' to ' +
+            ride.destination.name + ' on ' + DateFormater.formatToString(ride.date),
+          scope: $scope,
+          buttons: [{
+            text: '<b>Submit</b>',
+            type: 'button-positive',
+            onTap: function(e) {
+              return $scope.data.review;
+            }
+          }]
         });
-        if(!$scope.reviewe.rating ){
-          $scope.reviewe.rating = $scope.review.rating;
-        }
-        else {
-        $scope.reviewe.rating += $scope.review.rating;
-      }
-        console.log("reviewe", $scope.reviewe);
-        UsersDbs.save($scope.reviewe);
+
+        reviewPopup.then(function(res) {
+          console.log('Tapped!', res);
+          console.log('rating', $scope.review.rating);
+          $scope.reviewe.reviews.push({
+            userName: $scope.user.name,
+            rating: $scope.review.rating,
+            message: res
+          });
+          if (!$scope.reviewe.rating) {
+            $scope.reviewe.rating = $scope.review.rating;
+          } else {
+            $scope.reviewe.rating += $scope.review.rating;
+          }
+          console.log("reviewe", $scope.reviewe);
+          UsersDbs.save($scope.reviewe);
+        });
       });
+    });
   };
 
   $scope.showAlert = function() {
