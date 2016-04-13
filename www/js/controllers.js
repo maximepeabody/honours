@@ -389,7 +389,13 @@ angular.module('starter.controllers', [])
         $localStorage.setObject('user', u);
         console.log(u);
       });
-      $state.go('menu.rides');
+      $ionicHistory.clearCache();
+      $ionicHistory.nextViewOptions({
+        disableBack: true
+      });
+      $state.go('menu.rides', {}, {
+        reload: true
+      });
     });
   };
 
@@ -589,6 +595,11 @@ angular.module('starter.controllers', [])
         });
       });
     });
+  };
+
+  $scope.deleteRequest = function(request) {
+    RequestsDbs.delete({_id: request._id});
+    $scope.showAlert();
   };
 
   $scope.showAlert = function() {

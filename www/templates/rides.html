@@ -27,6 +27,7 @@
           <ion-item ng-repeat="request in pendingRequests" >
             <b> awaiting response... </b> <br>
             For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{dateFormater.formatToString(request.ride.date)}}
+            <button class="button  button-block " ng-click="deleteRequest(request)"> Delete Request </button>
           </ion-item>
       </ion-list>
     </ion-content>
