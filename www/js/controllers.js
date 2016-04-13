@@ -422,6 +422,7 @@ angular.module('starter.controllers', [])
     }, function() {
       console.log($scope.requests)
     });
+    $scope.pendingRequests = RequestsDbs.query({passengerid: $scope.user._id});
   });
 
   // check if any rides are now in the past // ask for review/ rating//

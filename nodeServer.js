@@ -59,6 +59,7 @@ app.post('/request', function(req, res) {
 app.get('/request', function(req, res) {
   var userid = req.query.userid;
   var rideid = req.query.rideid;
+  var passengerid = req.query.passengerid;
 
   console.log("query: ", req.query);
 
@@ -72,6 +73,12 @@ app.get('/request', function(req, res) {
       console.log("requests found", requests);
       res.send(requests);
   });
+
+}
+else if(passengerid) {
+  models.Requests.find({passenger: passengerid}).populate('ride').then(function(requests) {
+    res.send(requests);
+  })
 }
 });
 

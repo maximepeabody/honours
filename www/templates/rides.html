@@ -21,5 +21,13 @@
             <button class="button  button-block" ng-click = "declineRequest(request)"> Decline </button>
           </ion-item>
       </ion-list>
+      <ion-list>
+          <ion-item class="item-divider" >Pending Requests</ion-item>
+          <ion-item ng-show="requests.length === 0"> You have no pending requests...</ion-item>
+          <ion-item ng-repeat="request in requests" >
+            <b> awaiting response... </b>
+            For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{dateFormater.formatToString(request.ride.date)}}
+          </ion-item>
+      </ion-list>
     </ion-content>
 </ion-view>
