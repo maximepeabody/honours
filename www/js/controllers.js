@@ -437,8 +437,10 @@ angular.module('starter.controllers', [])
         else {
           // rate the passengers //
           for(var f = 0; f < $scope.user.rides[i].passengers.length; f++) {
-            $scope.ratePassengerPopup($scope.user.rides[i].passengers[f], $scope.user.ride);
+            $scope.ratePassengerPopup($scope.user.rides[i].passengers[f], $scope.user.rides[i]);
           }
+          $scope.user.rides.splice(i, 1);
+          UsersDbs.save($scope.user);
         }
       }
       // then remove it from the ride list
@@ -545,7 +547,7 @@ angular.module('starter.controllers', [])
     });
   };
 
-  $scope.rateDriverPopup = function(passenger, ride) {
+  $scope.ratePassengerPopup = function(passenger, ride) {
     $scope.data = {};
     $scope.reviewe = passenger;
 
@@ -581,9 +583,6 @@ angular.module('starter.controllers', [])
       }
         console.log("reviewe", $scope.reviewe);
         UsersDbs.save($scope.reviewe);
-
-        $scope.user.rides.splice(rideIndex, 1);
-        UsersDbs.save($scope.user);
       });
   };
 
