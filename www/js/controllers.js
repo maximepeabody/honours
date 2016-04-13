@@ -147,9 +147,10 @@ angular.module('starter.controllers', [])
     };
   })
 
-.controller('PrivateRideViewCtrl', function($scope, $timeout, Auth, $state, RideViewObject, $ionicLoading, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
+.controller('PrivateRideViewCtrl', function($scope, $firebaseArray, $timeout, Auth, $state, RideViewObject, $ionicLoading, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
     $scope.dateFormater = DateFormater;
     $scope.authData = Auth.$getAuth();
+    var chatRef = {};
     $scope.ride = $localStorage.getObject('viewObject');
     $scope.DateFormater = DateFormater;
     $scope.message = {};
@@ -169,6 +170,8 @@ angular.module('starter.controllers', [])
     }, function() {
       console.log($scope.ride);
       $ionicLoading.hide();
+      chatRef = new Firebase("http://hiked.firebaseio.com/chats/" + $scope.ride._id);
+      $scope.messages = $firebaseArray(chatRef);
     });
 
     $scope.doRefresh = function() {
@@ -182,6 +185,14 @@ angular.module('starter.controllers', [])
     };
 
     $scope.submitMessage = function(messageString) {
+      //firebase chat ://
+      $scope.messages.$add({
+        name: $scope.user.name,
+        message: messageString,
+        timestamp: new Date()
+      });
+
+      //database chat ://
       $scope.ride.messages.push({
         name: $scope.user.name,
         message: messageString,
@@ -189,6 +200,7 @@ angular.module('starter.controllers', [])
       });
       $scope.message.body = "";
       RidesDbs.save($scope.ride);
+
       // need to reload after?
       // or use firebase instaed?
       //$state.go($state.current, {}, {reload: true});
@@ -363,7 +375,7 @@ angular.module('starter.controllers', [])
 // sdestinationres the facebook uid and image on the dbs
 // each user has a unique uid
 //todo switch over to storing user data only on node server //
-.controller('LoginCtrl', function($scope, $ionicPopover, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs, $localStorage) {
+.controller('LoginCtrl', function($scope, $ionicPopover, $ionicHistory, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs, $localStorage) {
   //the following logs in with facebook with either a popup or a redirect
   var saveUserData = function(authData) {
     // check firebase for user data //
