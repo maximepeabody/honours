@@ -6,7 +6,7 @@ angular.module('starter.controllers', [])
 //queries based on 'origin' and 'destination' coordinates, + 'date'.
 //can add option destination query destination anywhere
 
-.controller('SearchCtrl', function($scope, $localStorage, Auth, $resource, $ionicHistory, $ionicLoading, RidesDbs, $state, DateFormater) {
+.controller('SearchCtrl', function($scope, $localStorage, Auth, $ionicHistory, $ionicLoading, RidesDbs, $state, DateFormater) {
   //get user data //
   $scope.authData = Auth.$getAuth();
   $scope.dateFormater = DateFormater;
@@ -75,7 +75,7 @@ angular.module('starter.controllers', [])
   }
 })
 
-.controller('UserViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, RequestsDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
+.controller('UserViewCtrl', function($scope, Auth, RideViewObject, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
     $scope.dateFormater = DateFormater;
     $scope.authData = Auth.$getAuth();
     $scope.user = UsersDbs.get({
@@ -147,7 +147,7 @@ angular.module('starter.controllers', [])
     };
   })
 
-.controller('PrivateRideViewCtrl', function($scope, $firebaseArray, $timeout, Auth, $state, RideViewObject, $ionicLoading, RidesDbs, UsersDbs, $ionicLoading, $localStorage, DateFormater) {
+.controller('PrivateRideViewCtrl', function($scope, $firebaseArray, Auth, $state, RideViewObject, $ionicLoading, RidesDbs, UsersDbs, $localStorage, DateFormater) {
     $scope.dateFormater = DateFormater;
     $scope.authData = Auth.$getAuth();
     var chatRef = {};
@@ -204,17 +204,17 @@ angular.module('starter.controllers', [])
       // need to reload after?
       // or use firebase instaed?
       //$state.go($state.current, {}, {reload: true});
-    }
+    };
 
   })
-  //controls the logout button in the menu //
-  .controller('MenuCtrl', function($scope, Auth, $state) {
+//controls the logout button in the menu //
+.controller('MenuCtrl', function($scope, Auth, $state) {
     $scope.logout = function() {
       Auth.$unauth();
       $state.go('login');
       console.log('loging out');
     };
-  })
+})
 
 // controls the postRide page. takes user input and posts a ride to the database //
 // ride data has form:
@@ -375,7 +375,7 @@ angular.module('starter.controllers', [])
 // sdestinationres the facebook uid and image on the dbs
 // each user has a unique uid
 //todo switch over to storing user data only on node server //
-.controller('LoginCtrl', function($scope, $ionicPopover, $ionicHistory, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs, $localStorage) {
+.controller('LoginCtrl', function($scope, $ionicHistory, Auth, $state, $firebaseArray, $firebaseObject, UsersDbs, $localStorage) {
   //the following logs in with facebook with either a popup or a redirect
   var saveUserData = function(authData) {
     // check firebase for user data //
@@ -425,7 +425,7 @@ angular.module('starter.controllers', [])
 })
 
 //
-.controller('MyRidesCtrl', function($scope, $state, $ionicPopup, $firebaseArray, $ionicHistory, RideViewObject, Auth, RidesDbs, UsersDbs, RequestsDbs, CurrentUser, $localStorage, DateFormater) {
+.controller('MyRidesCtrl', function($scope, $state, $ionicPopup, $firebaseArray, $ionicHistory, Auth, RidesDbs, UsersDbs, RequestsDbs, $localStorage, DateFormater) {
   $scope.dateFormater = DateFormater;
   $scope.authData = Auth.$getAuth();
   $scope.review = {};
@@ -440,8 +440,16 @@ angular.module('starter.controllers', [])
     }, function() {
       console.log($scope.requests)
     });
-    $scope.pendingRequests = RequestsDbs.query({passengerid: $scope.user._id});
+    $scope.pendingRequests = RequestsDbs.query({
+      passengerid: $scope.user._id
+    });
   });
+
+ // view a requesting users profile 
+  $scope.viewProfile = function(user) {
+    $localStorage.setObject('userViewObject', user);
+    $state.go('menu.accountPublic');
+  };
 
   // check if any rides are now in the past // ask for review/ rating//
   var checkForPastRides = function() {
@@ -610,7 +618,9 @@ angular.module('starter.controllers', [])
   };
 
   $scope.deleteRequest = function(request) {
-    RequestsDbs.delete({_id: request._id});
+    RequestsDbs.delete({
+      _id: request._id
+    });
     $scope.showAlert();
   };
 

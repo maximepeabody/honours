@@ -13,7 +13,7 @@
           <ion-item class="item-divider" >Ride Requests</ion-item>
           <ion-item ng-show="requests.length === 0"> You have no requests...</ion-item>
           <ion-item ng-repeat="request in requests" >
-            <b>{{request.passenger.name }}:</b>
+            <b ng-click="viewProfile(request.passenger)">{{request.passenger.name }}:</b>
             {{request.message}}
             <br>
             For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{dateFormater.formatToString(request.ride.date)}}

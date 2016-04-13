@@ -7,8 +7,6 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'google.places', 'ngResource', 'firebase', 'ngRoute', 'ionic-ratings'])
 
-.constant('MONGOLAB_CONFIG',{API_KEY:'kKzRztkYviZTkqkp0YPH_BqW9AfhHjLA', DB_NAME:'hiked'})
-
 .run(function ($ionicPlatform, Auth, $rootScope, $state) {
 
     //this gets called every time the user changes pages (states)
