@@ -23,9 +23,9 @@
       </ion-list>
       <ion-list>
           <ion-item class="item-divider" >Pending Requests</ion-item>
-          <ion-item ng-show="requests.length === 0"> You have no pending requests...</ion-item>
-          <ion-item ng-repeat="request in requests" >
-            <b> awaiting response... </b>
+          <ion-item ng-show="pendingRequests.length === 0"> You have no pending requests...</ion-item>
+          <ion-item ng-repeat="request in pendingRequests" >
+            <b> awaiting response... </b> <br>
             For ride from {{request.ride.origin.name}} to {{request.ride.destination.name}} on {{dateFormater.formatToString(request.ride.date)}}
           </ion-item>
       </ion-list>
